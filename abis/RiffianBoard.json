@@ -1,26 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_team",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_startTimeStamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_interval",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -62,6 +41,62 @@
       }
     ],
     "name": "ClaimDailyRewards",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "album",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isVote",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "supply",
+        "type": "uint256"
+      }
+    ],
+    "name": "EventVote",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -190,7 +225,7 @@
   },
   {
     "inputs": [],
-    "name": "albumPoolRewardPercents",
+    "name": "agentFeePercents",
     "outputs": [
       {
         "internalType": "uint256",
@@ -289,7 +324,7 @@
   },
   {
     "inputs": [],
-    "name": "artistRewardPercents",
+    "name": "boardFeePercents",
     "outputs": [
       {
         "internalType": "uint256",
@@ -433,12 +468,120 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "dailyRewardPercents",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_supply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPrice",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_album",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRetreatPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_album",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVotePrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_album",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVotePriceWithFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_sum",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_protocolFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_subjectFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_agentFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_boardFee",
         "type": "uint256"
       }
     ],
@@ -456,6 +599,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_feeDestination",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_startTimeStamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_interval",
+        "type": "uint256"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -511,7 +677,51 @@
   },
   {
     "inputs": [],
+    "name": "protocolFeeDestination",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "protocolFeePercents",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_album",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "retreat",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -566,6 +776,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_feeDestination",
+        "type": "address"
+      }
+    ],
+    "name": "setFeeDestination",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_interval",
         "type": "uint256"
@@ -580,22 +803,22 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_team",
+        "name": "_protocol",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_artist",
+        "name": "_subject",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_daily",
+        "name": "_agent",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_album",
+        "name": "_board",
         "type": "uint256"
       }
     ],
@@ -618,19 +841,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_team",
-        "type": "address"
-      }
-    ],
-    "name": "setTeamAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "startTimeStamp",
     "outputs": [
@@ -645,20 +855,7 @@
   },
   {
     "inputs": [],
-    "name": "teamAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "teamRewardPercents",
+    "name": "subjectFeePercents",
     "outputs": [
       {
         "internalType": "uint256",
@@ -752,6 +949,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_album",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "vote",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {

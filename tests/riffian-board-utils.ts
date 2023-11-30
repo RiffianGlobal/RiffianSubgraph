@@ -9,6 +9,7 @@ import {
   NewVote,
   OwnershipTransferred,
 } from '../generated/RiffianBoard/Riffian';
+import { EventVote } from '../generated/RiffianBoard/RiffianBoard';
 
 export function createClaimAlbumRewardsEvent(
   account: Address,
@@ -163,6 +164,40 @@ export function createNewVoteEvent(
   );
 
   return newVoteEvent;
+}
+
+export function createEventVoteEvent(
+  voter: Address,
+  album: Address,
+  isVote: boolean,
+  amount: BigInt,
+  value: BigInt,
+  supply: BigInt
+): EventVote {
+  let eventVoteEvent = changetype<EventVote>(newMockEvent());
+
+  eventVoteEvent.parameters = new Array();
+
+  // (address voter, address album, bool isVote, uint256 amount, uint256 value, uint256 supply);
+  eventVoteEvent.parameters.push(
+    new ethereum.EventParam('voter', ethereum.Value.fromAddress(voter))
+  );
+  eventVoteEvent.parameters.push(
+    new ethereum.EventParam('album', ethereum.Value.fromAddress(album))
+  );
+  eventVoteEvent.parameters.push(
+    new ethereum.EventParam('isVote', ethereum.Value.fromBoolean(isVote))
+  );
+  eventVoteEvent.parameters.push(
+    new ethereum.EventParam('amount', ethereum.Value.fromUnsignedBigInt(amount))
+  );
+  eventVoteEvent.parameters.push(
+    new ethereum.EventParam('value', ethereum.Value.fromUnsignedBigInt(value))
+  );
+  eventVoteEvent.parameters.push(
+    new ethereum.EventParam('supply', ethereum.Value.fromUnsignedBigInt(supply))
+  );
+  return eventVoteEvent;
 }
 
 export function createOwnershipTransferredEvent(

@@ -3,7 +3,7 @@ type Album @entity(immutable: true) {
   address: Bytes!
 
   # total votes
-  totalVotes: Int!
+  totalVotes: BigInt!
   # accumulated tokens of album vote
   totalVoteAmount: BigInt!
 
@@ -48,9 +48,21 @@ type User @entity(immutable: true) {
   albumsCreated: [Album!]
 
   # total votes
-  totalVotes: Int!
+  totalVotes: BigInt!
   # total rewards
   totalRewards: BigInt!
+}
+
+type UserVote @entity(immutable: true) {
+  id: ID!
+  # user
+  user: User!
+  # album
+  album: Album!
+  # amount of votes
+  totalVotes: BigInt!
+  # amount of tokens
+  totalAmount: BigInt!
 }
 
 type Statistic @entity(immutable: true) {

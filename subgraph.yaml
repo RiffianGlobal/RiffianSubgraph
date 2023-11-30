@@ -20,6 +20,8 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Album
+        - User
+        - UserVote
       abis:
         - name: RiffianBoard
           file: ./abis/RiffianBoard.json
@@ -28,6 +30,8 @@ dataSources:
           handler: handleNewAlbum
         - event: NewVote(address,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleNewVote
+        - event: EventVote(address,address,bool,uint256,uint256,uint256)
+          handler: handleEventVote
         - event: NewRewardDistribution(uint256,uint256,uint256,uint256)
           handler: handleNewRewardDistribution
         - event: ClaimAlbumRewards(address,address,uint256)

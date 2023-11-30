@@ -51,22 +51,22 @@ export class Album extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
-  get totalVotes(): i32 {
+  get totalVotes(): BigInt {
     let value = this.get("totalVotes");
-    return value!.toI32();
-  }
-
-  set totalVotes(value: i32) {
-    this.set("totalVotes", Value.fromI32(value));
-  }
-
-  get rewardPoolAmount(): BigInt {
-    let value = this.get("rewardPoolAmount");
     return value!.toBigInt();
   }
 
-  set rewardPoolAmount(value: BigInt) {
-    this.set("rewardPoolAmount", Value.fromBigInt(value));
+  set totalVotes(value: BigInt) {
+    this.set("totalVotes", Value.fromBigInt(value));
+  }
+
+  get totalVoteAmount(): BigInt {
+    let value = this.get("totalVoteAmount");
+    return value!.toBigInt();
+  }
+
+  set totalVoteAmount(value: BigInt) {
+    this.set("totalVoteAmount", Value.fromBigInt(value));
   }
 
   get createdAt(): i32 {
@@ -346,13 +346,13 @@ export class User extends Entity {
     }
   }
 
-  get totalVotes(): i32 {
+  get totalVotes(): BigInt {
     let value = this.get("totalVotes");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set totalVotes(value: i32) {
-    this.set("totalVotes", Value.fromI32(value));
+  set totalVotes(value: BigInt) {
+    this.set("totalVotes", Value.fromBigInt(value));
   }
 
   get totalRewards(): BigInt {
@@ -362,5 +362,123 @@ export class User extends Entity {
 
   set totalRewards(value: BigInt) {
     this.set("totalRewards", Value.fromBigInt(value));
+  }
+}
+
+export class UserVote extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save UserVote entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type UserVote must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("UserVote", id.toString(), this);
+    }
+  }
+
+  static load(id: string): UserVote | null {
+    return changetype<UserVote | null>(store.get("UserVote", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value!.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get album(): string {
+    let value = this.get("album");
+    return value!.toString();
+  }
+
+  set album(value: string) {
+    this.set("album", Value.fromString(value));
+  }
+
+  get totalVotes(): BigInt {
+    let value = this.get("totalVotes");
+    return value!.toBigInt();
+  }
+
+  set totalVotes(value: BigInt) {
+    this.set("totalVotes", Value.fromBigInt(value));
+  }
+
+  get totalAmount(): BigInt {
+    let value = this.get("totalAmount");
+    return value!.toBigInt();
+  }
+
+  set totalAmount(value: BigInt) {
+    this.set("totalAmount", Value.fromBigInt(value));
+  }
+}
+
+export class Statistic extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Statistic entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Statistic must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Statistic", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Statistic | null {
+    return changetype<Statistic | null>(store.get("Statistic", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get totalVoteAmount(): BigInt {
+    let value = this.get("totalVoteAmount");
+    return value!.toBigInt();
+  }
+
+  set totalVoteAmount(value: BigInt) {
+    this.set("totalVoteAmount", Value.fromBigInt(value));
+  }
+
+  get totalVoteNumber(): i32 {
+    let value = this.get("totalVoteNumber");
+    return value!.toI32();
+  }
+
+  set totalVoteNumber(value: i32) {
+    this.set("totalVoteNumber", Value.fromI32(value));
   }
 }

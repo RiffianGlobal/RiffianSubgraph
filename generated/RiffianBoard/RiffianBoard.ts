@@ -58,6 +58,62 @@ export class ClaimDailyRewards__Params {
   }
 }
 
+export class EventVote extends ethereum.Event {
+  get params(): EventVote__Params {
+    return new EventVote__Params(this);
+  }
+}
+
+export class EventVote__Params {
+  _event: EventVote;
+
+  constructor(event: EventVote) {
+    this._event = event;
+  }
+
+  get voter(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get album(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get isVote(): boolean {
+    return this._event.parameters[2].value.toBoolean();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get value(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get supply(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
+  }
+}
+
+export class Initialized extends ethereum.Event {
+  get params(): Initialized__Params {
+    return new Initialized__Params(this);
+  }
+}
+
+export class Initialized__Params {
+  _event: Initialized;
+
+  constructor(event: Initialized) {
+    this._event = event;
+  }
+
+  get version(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+}
+
 export class NewAlbum extends ethereum.Event {
   get params(): NewAlbum__Params {
     return new NewAlbum__Params(this);
@@ -210,6 +266,66 @@ export class RiffianBoard__albumToDataResult {
   }
 }
 
+export class RiffianBoard__getVotePriceWithFeeResult {
+  value0: BigInt;
+  value1: BigInt;
+  value2: BigInt;
+  value3: BigInt;
+  value4: BigInt;
+  value5: BigInt;
+
+  constructor(
+    value0: BigInt,
+    value1: BigInt,
+    value2: BigInt,
+    value3: BigInt,
+    value4: BigInt,
+    value5: BigInt
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
+    this.value4 = value4;
+    this.value5 = value5;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
+    map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
+    return map;
+  }
+
+  get_sum(): BigInt {
+    return this.value0;
+  }
+
+  get_price(): BigInt {
+    return this.value1;
+  }
+
+  get_protocolFee(): BigInt {
+    return this.value2;
+  }
+
+  get_subjectFee(): BigInt {
+    return this.value3;
+  }
+
+  get_agentFee(): BigInt {
+    return this.value4;
+  }
+
+  get_boardFee(): BigInt {
+    return this.value5;
+  }
+}
+
 export class RiffianBoard__seqToRewardDataResult {
   value0: BigInt;
   value1: BigInt;
@@ -254,20 +370,20 @@ export class RiffianBoard extends ethereum.SmartContract {
     return new RiffianBoard("RiffianBoard", address);
   }
 
-  albumPoolRewardPercents(): BigInt {
+  agentFeePercents(): BigInt {
     let result = super.call(
-      "albumPoolRewardPercents",
-      "albumPoolRewardPercents():(uint256)",
+      "agentFeePercents",
+      "agentFeePercents():(uint256)",
       []
     );
 
     return result[0].toBigInt();
   }
 
-  try_albumPoolRewardPercents(): ethereum.CallResult<BigInt> {
+  try_agentFeePercents(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "albumPoolRewardPercents",
-      "albumPoolRewardPercents():(uint256)",
+      "agentFeePercents",
+      "agentFeePercents():(uint256)",
       []
     );
     if (result.reverted) {
@@ -377,20 +493,20 @@ export class RiffianBoard extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  artistRewardPercents(): BigInt {
+  boardFeePercents(): BigInt {
     let result = super.call(
-      "artistRewardPercents",
-      "artistRewardPercents():(uint256)",
+      "boardFeePercents",
+      "boardFeePercents():(uint256)",
       []
     );
 
     return result[0].toBigInt();
   }
 
-  try_artistRewardPercents(): ethereum.CallResult<BigInt> {
+  try_boardFeePercents(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "artistRewardPercents",
-      "artistRewardPercents():(uint256)",
+      "boardFeePercents",
+      "boardFeePercents():(uint256)",
       []
     );
     if (result.reverted) {
@@ -564,27 +680,144 @@ export class RiffianBoard extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  dailyRewardPercents(): BigInt {
-    let result = super.call(
-      "dailyRewardPercents",
-      "dailyRewardPercents():(uint256)",
-      []
-    );
+  getPrice(_supply: BigInt, _amount: BigInt): BigInt {
+    let result = super.call("getPrice", "getPrice(uint256,uint256):(uint256)", [
+      ethereum.Value.fromUnsignedBigInt(_supply),
+      ethereum.Value.fromUnsignedBigInt(_amount)
+    ]);
 
     return result[0].toBigInt();
   }
 
-  try_dailyRewardPercents(): ethereum.CallResult<BigInt> {
+  try_getPrice(_supply: BigInt, _amount: BigInt): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "dailyRewardPercents",
-      "dailyRewardPercents():(uint256)",
-      []
+      "getPrice",
+      "getPrice(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_supply),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getRetreatPrice(_album: Address, _amount: BigInt): BigInt {
+    let result = super.call(
+      "getRetreatPrice",
+      "getRetreatPrice(address,uint256):(uint256)",
+      [
+        ethereum.Value.fromAddress(_album),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getRetreatPrice(
+    _album: Address,
+    _amount: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getRetreatPrice",
+      "getRetreatPrice(address,uint256):(uint256)",
+      [
+        ethereum.Value.fromAddress(_album),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getVotePrice(_album: Address, _amount: BigInt): BigInt {
+    let result = super.call(
+      "getVotePrice",
+      "getVotePrice(address,uint256):(uint256)",
+      [
+        ethereum.Value.fromAddress(_album),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getVotePrice(
+    _album: Address,
+    _amount: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getVotePrice",
+      "getVotePrice(address,uint256):(uint256)",
+      [
+        ethereum.Value.fromAddress(_album),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getVotePriceWithFee(
+    _album: Address,
+    _amount: BigInt
+  ): RiffianBoard__getVotePriceWithFeeResult {
+    let result = super.call(
+      "getVotePriceWithFee",
+      "getVotePriceWithFee(address,uint256):(uint256,uint256,uint256,uint256,uint256,uint256)",
+      [
+        ethereum.Value.fromAddress(_album),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
+    );
+
+    return new RiffianBoard__getVotePriceWithFeeResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+      result[2].toBigInt(),
+      result[3].toBigInt(),
+      result[4].toBigInt(),
+      result[5].toBigInt()
+    );
+  }
+
+  try_getVotePriceWithFee(
+    _album: Address,
+    _amount: BigInt
+  ): ethereum.CallResult<RiffianBoard__getVotePriceWithFeeResult> {
+    let result = super.tryCall(
+      "getVotePriceWithFee",
+      "getVotePriceWithFee(address,uint256):(uint256,uint256,uint256,uint256,uint256,uint256)",
+      [
+        ethereum.Value.fromAddress(_album),
+        ethereum.Value.fromUnsignedBigInt(_amount)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new RiffianBoard__getVotePriceWithFeeResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+        value[2].toBigInt(),
+        value[3].toBigInt(),
+        value[4].toBigInt(),
+        value[5].toBigInt()
+      )
+    );
   }
 
   guardian(): Address {
@@ -630,6 +863,52 @@ export class RiffianBoard extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  protocolFeeDestination(): Address {
+    let result = super.call(
+      "protocolFeeDestination",
+      "protocolFeeDestination():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_protocolFeeDestination(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "protocolFeeDestination",
+      "protocolFeeDestination():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  protocolFeePercents(): BigInt {
+    let result = super.call(
+      "protocolFeePercents",
+      "protocolFeePercents():(uint256)",
+      []
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_protocolFeePercents(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "protocolFeePercents",
+      "protocolFeePercents():(uint256)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   rewardIntervalMin(): BigInt {
@@ -711,35 +990,20 @@ export class RiffianBoard extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  teamAddress(): Address {
-    let result = super.call("teamAddress", "teamAddress():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_teamAddress(): ethereum.CallResult<Address> {
-    let result = super.tryCall("teamAddress", "teamAddress():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  teamRewardPercents(): BigInt {
+  subjectFeePercents(): BigInt {
     let result = super.call(
-      "teamRewardPercents",
-      "teamRewardPercents():(uint256)",
+      "subjectFeePercents",
+      "subjectFeePercents():(uint256)",
       []
     );
 
     return result[0].toBigInt();
   }
 
-  try_teamRewardPercents(): ethereum.CallResult<BigInt> {
+  try_subjectFeePercents(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "teamRewardPercents",
-      "teamRewardPercents():(uint256)",
+      "subjectFeePercents",
+      "subjectFeePercents():(uint256)",
       []
     );
     if (result.reverted) {
@@ -828,44 +1092,6 @@ export class RiffianBoard extends ethereum.SmartContract {
   }
 }
 
-export class ConstructorCall extends ethereum.Call {
-  get inputs(): ConstructorCall__Inputs {
-    return new ConstructorCall__Inputs(this);
-  }
-
-  get outputs(): ConstructorCall__Outputs {
-    return new ConstructorCall__Outputs(this);
-  }
-}
-
-export class ConstructorCall__Inputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-
-  get _team(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _startTimeStamp(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get _interval(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-}
-
-export class ConstructorCall__Outputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
 export class ClaimAlbumRewardsCall extends ethereum.Call {
   get inputs(): ClaimAlbumRewardsCall__Inputs {
     return new ClaimAlbumRewardsCall__Inputs(this);
@@ -931,6 +1157,44 @@ export class ClaimDailyRewardsCall__Outputs {
 
   get value0(): BigInt {
     return this._call.outputValues[0].value.toBigInt();
+  }
+}
+
+export class InitializeCall extends ethereum.Call {
+  get inputs(): InitializeCall__Inputs {
+    return new InitializeCall__Inputs(this);
+  }
+
+  get outputs(): InitializeCall__Outputs {
+    return new InitializeCall__Outputs(this);
+  }
+}
+
+export class InitializeCall__Inputs {
+  _call: InitializeCall;
+
+  constructor(call: InitializeCall) {
+    this._call = call;
+  }
+
+  get _feeDestination(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _startTimeStamp(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get _interval(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+}
+
+export class InitializeCall__Outputs {
+  _call: InitializeCall;
+
+  constructor(call: InitializeCall) {
+    this._call = call;
   }
 }
 
@@ -1020,6 +1284,70 @@ export class RenounceOwnershipCall__Outputs {
   }
 }
 
+export class RetreatCall extends ethereum.Call {
+  get inputs(): RetreatCall__Inputs {
+    return new RetreatCall__Inputs(this);
+  }
+
+  get outputs(): RetreatCall__Outputs {
+    return new RetreatCall__Outputs(this);
+  }
+}
+
+export class RetreatCall__Inputs {
+  _call: RetreatCall;
+
+  constructor(call: RetreatCall) {
+    this._call = call;
+  }
+
+  get _album(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _amount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class RetreatCall__Outputs {
+  _call: RetreatCall;
+
+  constructor(call: RetreatCall) {
+    this._call = call;
+  }
+}
+
+export class SetFeeDestinationCall extends ethereum.Call {
+  get inputs(): SetFeeDestinationCall__Inputs {
+    return new SetFeeDestinationCall__Inputs(this);
+  }
+
+  get outputs(): SetFeeDestinationCall__Outputs {
+    return new SetFeeDestinationCall__Outputs(this);
+  }
+}
+
+export class SetFeeDestinationCall__Inputs {
+  _call: SetFeeDestinationCall;
+
+  constructor(call: SetFeeDestinationCall) {
+    this._call = call;
+  }
+
+  get _feeDestination(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetFeeDestinationCall__Outputs {
+  _call: SetFeeDestinationCall;
+
+  constructor(call: SetFeeDestinationCall) {
+    this._call = call;
+  }
+}
+
 export class SetIntervalCall extends ethereum.Call {
   get inputs(): SetIntervalCall__Inputs {
     return new SetIntervalCall__Inputs(this);
@@ -1067,19 +1395,19 @@ export class SetRewardDistributionCall__Inputs {
     this._call = call;
   }
 
-  get _team(): BigInt {
+  get _protocol(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get _artist(): BigInt {
+  get _subject(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 
-  get _daily(): BigInt {
+  get _agent(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 
-  get _album(): BigInt {
+  get _board(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
 }
@@ -1118,36 +1446,6 @@ export class SetStartTimeStampCall__Outputs {
   _call: SetStartTimeStampCall;
 
   constructor(call: SetStartTimeStampCall) {
-    this._call = call;
-  }
-}
-
-export class SetTeamAddressCall extends ethereum.Call {
-  get inputs(): SetTeamAddressCall__Inputs {
-    return new SetTeamAddressCall__Inputs(this);
-  }
-
-  get outputs(): SetTeamAddressCall__Outputs {
-    return new SetTeamAddressCall__Outputs(this);
-  }
-}
-
-export class SetTeamAddressCall__Inputs {
-  _call: SetTeamAddressCall;
-
-  constructor(call: SetTeamAddressCall) {
-    this._call = call;
-  }
-
-  get _team(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetTeamAddressCall__Outputs {
-  _call: SetTeamAddressCall;
-
-  constructor(call: SetTeamAddressCall) {
     this._call = call;
   }
 }
@@ -1202,12 +1500,46 @@ export class VoteCall__Inputs {
   get _album(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
+
+  get _amount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
 }
 
 export class VoteCall__Outputs {
   _call: VoteCall;
 
   constructor(call: VoteCall) {
+    this._call = call;
+  }
+}
+
+export class Vote1Call extends ethereum.Call {
+  get inputs(): Vote1Call__Inputs {
+    return new Vote1Call__Inputs(this);
+  }
+
+  get outputs(): Vote1Call__Outputs {
+    return new Vote1Call__Outputs(this);
+  }
+}
+
+export class Vote1Call__Inputs {
+  _call: Vote1Call;
+
+  constructor(call: Vote1Call) {
+    this._call = call;
+  }
+
+  get _album(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class Vote1Call__Outputs {
+  _call: Vote1Call;
+
+  constructor(call: Vote1Call) {
     this._call = call;
   }
 }
