@@ -31,24 +31,22 @@ function createOrLoadUser(bytesAddress: Bytes): User {
   return user as User;
 }
 
-function createOrLoadUserVote(
-  bytesUser: Bytes,
-  bytesSubject: Bytes,
-  timestamp: BigInt
-): UserVote {
-  let key = bytesUser.toHex() + '-' + bytesSubject.toHex();
-  let userVote = UserVote.load(key);
-  if (userVote == null) {
-    userVote = new UserVote(key);
-    userVote.amount = BigInt.fromI32(0);
-    userVote.createdTimestamp = timestamp;
-    userVote.isVote = false;
-    userVote.subject = bytesSubject;
-    userVote.voter = bytesUser;
-    userVote.supply = BigInt.fromI32(0);
-    userVote.value = BigInt.fromI32(0);
-    userVote.save();
-  }
+function createUserVote(event: EventVoteEvent, timestamp: BigInt): UserVote {
+  let key =
+    event.params.voter.toHex() +
+    '-' +
+    event.params.subject.toHex() +
+    '-' +
+    timestamp.toString();
+  let userVote = new UserVote(key);
+  userVote.createdTimestamp = timestamp;
+  userVote.subject = event.params.subject;
+  userVote.voter = event.params.voter;
+  userVote.isVote = event.params.isVote;
+  userVote.amount = event.params.amount;
+  userVote.value = event.params.value;
+  userVote.supply = event.params.supply;
+  userVote.save();
   return userVote as UserVote;
 }
 
@@ -116,16 +114,7 @@ export function handleEventBind(event: EventBindEvent): void {
 // }
 
 export function handleEventVote(event: EventVoteEvent): void {
-  let userVote = createOrLoadUserVote(
-    event.params.voter,
-    event.params.subject,
-    event.block.timestamp
-  );
-  userVote.isVote = event.params.isVote;
-  userVote.amount = event.params.amount;
-  userVote.value = event.params.value;
-  userVote.supply = event.params.supply;
-  userVote.save();
+  createUserVote(event, event.block.timestamp);
 
   let user = createOrLoadUser(event.params.voter);
   let subject = createOrLoadSubject(

@@ -1,4 +1,4 @@
-type User @entity(immutable: true) {
+type User @entity {
   id: Bytes!
   account: Bytes! # address
   # week: BigInt! # uint256
@@ -11,7 +11,7 @@ type User @entity(immutable: true) {
   totalVotes: BigInt!
 }
 
-type Social @entity(immutable: true) {
+type Social @entity {
   id: String!
   uri: String!
   platform: String!
@@ -29,7 +29,7 @@ type UserVote @entity(immutable: true) {
   createdTimestamp: BigInt!
 }
 
-type RewardDistribution @entity(immutable: true) {
+type RewardDistribution @entity {
   id: String!
   protocol: BigInt! # uint256
   subject: BigInt! # uint256
@@ -38,7 +38,7 @@ type RewardDistribution @entity(immutable: true) {
   updatedTimestamp: BigInt!
 }
 
-type Subject @entity(immutable: true) {
+type Subject @entity {
   id: Bytes!
   owner: User! # address
   subject: Bytes! # bytes32
