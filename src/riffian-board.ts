@@ -1,3 +1,4 @@
+import { Bytes, BigInt, log } from '@graphprotocol/graph-ts';
 import {
   EventBind as EventBindEvent,
   EventClaimReward as EventClaimRewardEvent,
@@ -6,148 +7,169 @@ import {
   NewRewardDistribution as NewRewardDistributionEvent,
   NewSubject as NewSubjectEvent,
   NewVote as NewVoteEvent,
-  OwnershipTransferred as OwnershipTransferredEvent
-} from "../generated/RiffianBoard/RiffianBoard"
+  OwnershipTransferred as OwnershipTransferredEvent,
+} from '../generated/RiffianBoard/RiffianBoard';
 import {
-  EventBind,
-  EventClaimReward,
-  EventVote,
-  Initialized,
-  NewRewardDistribution,
-  NewSubject,
-  NewVote,
-  OwnershipTransferred
-} from "../generated/schema"
+  RewardDistribution,
+  Social,
+  Subject,
+  User,
+  UserVote,
+  WeeklyPool,
+} from '../generated/schema';
+
+function createOrLoadUser(bytesAddress: Bytes): User {
+  let user = User.load(bytesAddress);
+  if (user == null) {
+    user = new User(bytesAddress);
+    user.account = bytesAddress;
+    user.socials = [];
+    user.subjects = [];
+    user.totalVotes = BigInt.fromI32(0);
+    user.save();
+  }
+  return user as User;
+}
+
+function createOrLoadUserVote(
+  bytesUser: Bytes,
+  bytesSubject: Bytes,
+  timestamp: BigInt
+): UserVote {
+  let key = bytesUser.toHex() + '-' + bytesSubject.toHex();
+  let userVote = UserVote.load(key);
+  if (userVote == null) {
+    userVote = new UserVote(key);
+    userVote.amount = BigInt.fromI32(0);
+    userVote.createdTimestamp = timestamp;
+    userVote.isVote = false;
+    userVote.subject = bytesSubject;
+    userVote.voter = bytesUser;
+    userVote.supply = BigInt.fromI32(0);
+    userVote.value = BigInt.fromI32(0);
+    userVote.save();
+  }
+  return userVote as UserVote;
+}
+
+function createOrLoadSocial(
+  platform: string,
+  pid: string,
+  uri: string
+): Social {
+  let key = platform + '-' + pid;
+  let social = Social.load(key);
+  if (social == null) {
+    social = new Social(key);
+    social.pid = pid;
+    social.platform = platform;
+    social.uri = uri;
+    social.save();
+  }
+  return social as Social;
+}
+
+function createOrLoadSubject(bytesSubject: Bytes, timestamp: BigInt): Subject {
+  let subject = Subject.load(bytesSubject);
+  if (subject == null) {
+    subject = new Subject(bytesSubject);
+    subject.subject = bytesSubject;
+    subject.createdTimeStamp = timestamp;
+    subject.updatedTimestamp = BigInt.fromI32(0);
+    subject.name = '';
+    subject.image = '';
+    subject.uri = '';
+    subject.owner = bytesSubject;
+    subject.totalVotes = BigInt.fromI32(0);
+    subject.save();
+  }
+  return subject as Subject;
+}
 
 export function handleEventBind(event: EventBindEvent): void {
-  let entity = new EventBind(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.account = event.params.account
-  entity.platform = event.params.platform
-  entity.id = event.params.id
-  entity.uri = event.params.uri
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let user = createOrLoadUser(event.params.account);
+  let social = createOrLoadSocial(
+    event.params.platform,
+    event.params.id,
+    event.params.uri
+  );
+  let socials = user.socials;
+  socials.push(social.id);
+  user.socials = socials;
+  user.save();
+  log.info('bind user {} with social {}', [user.id.toHex(), social.id]);
 }
 
-export function handleEventClaimReward(event: EventClaimRewardEvent): void {
-  let entity = new EventClaimReward(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.account = event.params.account
-  entity.week = event.params.week
-  entity.reward = event.params.reward
+// export function handleEventClaimReward(event: EventClaimRewardEvent): void {
+//   let entity = new EventClaimReward(
+//     event.transaction.hash.concatI32(event.logIndex.toI32())
+//   );
+//   entity.account = event.params.account;
+//   entity.week = event.params.week;
+//   entity.reward = event.params.reward;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+//   entity.blockNumber = event.block.number;
+//   entity.blockTimestamp = event.block.timestamp;
+//   entity.transactionHash = event.transaction.hash;
 
-  entity.save()
-}
+//   entity.save();
+// }
 
 export function handleEventVote(event: EventVoteEvent): void {
-  let entity = new EventVote(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.voter = event.params.voter
-  entity.subject = event.params.subject
-  entity.isVote = event.params.isVote
-  entity.amount = event.params.amount
-  entity.value = event.params.value
-  entity.supply = event.params.supply
+  let userVote = createOrLoadUserVote(
+    event.params.voter,
+    event.params.subject,
+    event.block.timestamp
+  );
+  userVote.isVote = event.params.isVote;
+  userVote.amount = event.params.amount;
+  userVote.value = event.params.value;
+  userVote.supply = event.params.supply;
+  userVote.save();
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleInitialized(event: InitializedEvent): void {
-  let entity = new Initialized(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.version = event.params.version
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let user = createOrLoadUser(event.params.voter);
+  let subject = createOrLoadSubject(
+    event.params.subject,
+    event.block.timestamp
+  );
+  if (event.params.isVote) {
+    user.totalVotes = user.totalVotes.plus(BigInt.fromI32(1));
+    subject.totalVotes = subject.totalVotes.plus(BigInt.fromI32(1));
+  } else {
+    user.totalVotes = user.totalVotes.minus(BigInt.fromI32(1));
+    subject.totalVotes = subject.totalVotes.minus(BigInt.fromI32(1));
+  }
+  user.save();
+  subject.save();
 }
 
 export function handleNewRewardDistribution(
   event: NewRewardDistributionEvent
 ): void {
-  let entity = new NewRewardDistribution(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._team = event.params._team
-  entity._artist = event.params._artist
-  entity._daily = event.params._daily
-  entity._subject = event.params._subject
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let dis = RewardDistribution.load('RewardDistribution');
+  if (dis == null) {
+    dis = new RewardDistribution('RewardDistribution');
+  }
+  dis.protocol = event.params._team;
+  dis.subject = event.params._artist;
+  dis.agent = event.params._daily;
+  dis.board = event.params._subject;
+  dis.save();
 }
 
 export function handleNewSubject(event: NewSubjectEvent): void {
-  let entity = new NewSubject(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.owner = event.params.owner
-  entity.subject = event.params.subject
-  entity.name = event.params.name
-  entity.image = event.params.image
-  entity.uri = event.params.uri
+  let subject = createOrLoadSubject(
+    event.params.subject,
+    event.block.timestamp
+  );
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  subject.owner = event.params.owner;
+  subject.save();
 
-  entity.save()
-}
-
-export function handleNewVote(event: NewVoteEvent): void {
-  let entity = new NewVote(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.from = event.params.from
-  entity.to = event.params.to
-  entity.amount = event.params.amount
-  entity.dailyRewardAmount = event.params.dailyRewardAmount
-  entity.subjectPoolRewardAmount = event.params.subjectPoolRewardAmount
-  entity.teamRewardAmount = event.params.teamRewardAmount
-  entity.artistRewardAmount = event.params.artistRewardAmount
-  entity.seq = event.params.seq
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleOwnershipTransferred(
-  event: OwnershipTransferredEvent
-): void {
-  let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let user = createOrLoadUser(event.params.owner);
+  let subjects = user.subjects;
+  subjects.push(subject.id);
+  user.subjects = subjects;
+  user.save();
+  log.info('user {} create subject {}', [user.id.toHex(), subject.id.toHex()]);
 }

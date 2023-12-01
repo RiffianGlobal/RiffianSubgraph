@@ -1,88 +1,57 @@
-type EventBind @entity(immutable: true) {
+type User @entity(immutable: true) {
   id: Bytes!
   account: Bytes! # address
-  platform: String! # string
-  id: String! # string
-  uri: String! # string
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  # week: BigInt! # uint256
+  # reward: BigInt! # uint256
+  socials: [Social!]!
+  # subjects user created
+  subjects: [Subject!]!
+
+  # total vote number
+  totalVotes: BigInt!
 }
 
-type EventClaimReward @entity(immutable: true) {
-  id: Bytes!
-  account: Bytes! # address
-  week: BigInt! # uint256
-  reward: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Social @entity(immutable: true) {
+  id: String!
+  uri: String!
+  platform: String!
+  pid: String!
 }
 
-type EventVote @entity(immutable: true) {
-  id: Bytes!
-  voter: Bytes! # address
-  subject: Bytes! # bytes32
+type UserVote @entity(immutable: true) {
+  id: String!
+  voter: User! # address
+  subject: Subject! # bytes32
   isVote: Boolean! # bool
   amount: BigInt! # uint256
   value: BigInt! # uint256
   supply: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  createdTimestamp: BigInt!
 }
 
-type Initialized @entity(immutable: true) {
-  id: Bytes!
-  version: Int! # uint8
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type RewardDistribution @entity(immutable: true) {
+  id: String!
+  protocol: BigInt! # uint256
+  subject: BigInt! # uint256
+  agent: BigInt! # uint256
+  board: BigInt! # uint256
+  updatedTimestamp: BigInt!
 }
 
-type NewRewardDistribution @entity(immutable: true) {
+type Subject @entity(immutable: true) {
   id: Bytes!
-  _team: BigInt! # uint256
-  _artist: BigInt! # uint256
-  _daily: BigInt! # uint256
-  _subject: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type NewSubject @entity(immutable: true) {
-  id: Bytes!
-  owner: Bytes! # address
+  owner: User! # address
   subject: Bytes! # bytes32
   name: String! # string
   image: String! # string
   uri: String! # string
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  totalVotes: BigInt!
+  # totalVoteUsers: BigInt!
+  createdTimeStamp: BigInt!
+  updatedTimestamp: BigInt!
 }
 
-type NewVote @entity(immutable: true) {
+type WeeklyPool @entity(immutable: true) {
   id: Bytes!
-  from: Bytes! # address
-  to: Bytes! # address
-  amount: BigInt! # uint256
-  dailyRewardAmount: BigInt! # uint256
-  subjectPoolRewardAmount: BigInt! # uint256
-  teamRewardAmount: BigInt! # uint256
-  artistRewardAmount: BigInt! # uint256
-  seq: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  week: Int!
 }

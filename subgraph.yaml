@@ -6,39 +6,28 @@ dataSources:
     name: RiffianBoard
     network: fantom-testnet
     source:
-      address: "0x3b250be432e32aa58412a7a94e7c826b7f3b9b5c"
+      address: '0x5D0D729990C9b97Ab1de2A65CF98901b1229f3cf'
       abi: RiffianBoard
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - EventBind
-        - EventClaimReward
-        - EventVote
-        - Initialized
-        - NewRewardDistribution
-        - NewSubject
-        - NewVote
-        - OwnershipTransferred
+        - Subject
+        - User
+        - UserVote
+        - RewardDistribution
+        - WeekPool
       abis:
         - name: RiffianBoard
           file: ./abis/RiffianBoard.json
       eventHandlers:
         - event: EventBind(address,string,string,string)
           handler: handleEventBind
-        - event: EventClaimReward(address,uint256,uint256)
-          handler: handleEventClaimReward
         - event: EventVote(address,bytes32,bool,uint256,uint256,uint256)
           handler: handleEventVote
-        - event: Initialized(uint8)
-          handler: handleInitialized
         - event: NewRewardDistribution(uint256,uint256,uint256,uint256)
           handler: handleNewRewardDistribution
         - event: NewSubject(address,bytes32,string,string,string)
           handler: handleNewSubject
-        - event: NewVote(address,address,uint256,uint256,uint256,uint256,uint256,uint256)
-          handler: handleNewVote
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
       file: ./src/riffian-board.ts
