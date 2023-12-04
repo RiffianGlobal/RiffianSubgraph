@@ -151,7 +151,9 @@ export function handleNewSubject(event: NewSubjectEvent): void {
     event.params.subject,
     event.block.timestamp
   );
-
+  subject.name = event.params.name;
+  subject.image = event.params.image;
+  subject.uri = event.params.uri;
   subject.owner = event.params.owner;
   subject.save();
 
