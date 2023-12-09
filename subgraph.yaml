@@ -1,4 +1,4 @@
-specVersion: 0.0.7
+specVersion: 0.0.8
 description: The Graph Network Smart Contracts on Ethereum
 repository: https://github.com/graphprotocol/graph-network-subgraph
 schema:

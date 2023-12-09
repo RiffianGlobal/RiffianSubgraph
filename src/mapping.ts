@@ -1,20 +1,4 @@
-import {
-  BigInt,
-  ByteArray,
-  Address,
-  Bytes,
-  crypto,
-  log,
-  BigDecimal,
-  bigInt,
-  dataSource,
-} from '@graphprotocol/graph-ts';
-import {
-  ClaimAlbumRewards,
-  NewAlbum,
-  NewRewardDistribution,
-  NewVote,
-} from '../generated/RiffianBoard/Riffian';
+import { BigInt, Bytes, log, dataSource } from '@graphprotocol/graph-ts';
 import {
   Album,
   TokenDistribution,
@@ -257,37 +241,63 @@ export function handleEventVote(event: EventVote): void {
   let userAlbumVote = createOrLoadUserAlbumVote(user.address, album.address);
 
   if (event.params.isVote) {
-    user.totalVotes.plus(event.params.amount);
-    userWeeklyVote.votes.plus(event.params.amount);
-    userWeeklyVote.volumeVote.plus(event.params.value);
-    userWeeklyVote.volumeTotal.plus(event.params.value);
-    album.totalVotes.plus(event.params.amount);
-    album.totalVoteValue.plus(event.params.value);
-    album.volumeVote.plus(event.params.value);
-    album.volumeTotal.plus(event.params.value);
-    albumWeeklyVote.votes.plus(event.params.amount);
-    albumWeeklyVote.volumeVote.plus(event.params.value);
-    albumWeeklyVote.volumeTotal.plus(event.params.value);
-    userAlbumVote.holding.plus(event.params.amount);
-    userAlbumVote.votes.plus(event.params.amount);
-    userAlbumVote.volumeVote.plus(event.params.value);
-    userAlbumVote.volumeTotal.plus(event.params.value);
+    user.totalVotes = user.totalVotes.plus(event.params.amount);
+    userWeeklyVote.votes = userWeeklyVote.votes.plus(event.params.amount);
+    userWeeklyVote.volumeVote = userWeeklyVote.volumeVote.plus(
+      event.params.value
+    );
+    userWeeklyVote.volumeTotal = userWeeklyVote.volumeTotal.plus(
+      event.params.value
+    );
+    album.totalVotes = album.totalVotes.plus(event.params.amount);
+    album.totalVoteValue = album.totalVoteValue.plus(event.params.value);
+    album.volumeVote = album.volumeVote.plus(event.params.value);
+    album.volumeTotal = album.volumeTotal.plus(event.params.value);
+    albumWeeklyVote.votes = albumWeeklyVote.votes.plus(event.params.amount);
+    albumWeeklyVote.volumeVote = albumWeeklyVote.volumeVote.plus(
+      event.params.value
+    );
+    albumWeeklyVote.volumeTotal = albumWeeklyVote.volumeTotal.plus(
+      event.params.value
+    );
+    userAlbumVote.holding = userAlbumVote.holding.plus(event.params.amount);
+    userAlbumVote.votes = userAlbumVote.votes.plus(event.params.amount);
+    userAlbumVote.volumeVote = userAlbumVote.volumeVote.plus(
+      event.params.value
+    );
+    userAlbumVote.volumeTotal = userAlbumVote.volumeTotal.plus(
+      event.params.value
+    );
   } else {
-    user.totalVotes.minus(event.params.amount);
-    userWeeklyVote.retreats.plus(event.params.amount);
-    userWeeklyVote.volumeRetreat.plus(event.params.value);
-    userWeeklyVote.volumeTotal.plus(event.params.value);
-    album.totalVotes.minus(event.params.amount);
-    album.totalVoteValue.minus(event.params.value);
-    album.volumeRetreat.plus(event.params.value);
-    album.volumeTotal.plus(event.params.value);
-    albumWeeklyVote.retreats.plus(event.params.amount);
-    albumWeeklyVote.volumeRetreat.plus(event.params.value);
-    albumWeeklyVote.volumeTotal.plus(event.params.value);
-    userAlbumVote.holding.minus(event.params.amount);
-    userAlbumVote.retreats.plus(event.params.amount);
-    userAlbumVote.volumeRetreat.plus(event.params.value);
-    userAlbumVote.volumeTotal.plus(event.params.value);
+    user.totalVotes = user.totalVotes.minus(event.params.amount);
+    userWeeklyVote.retreats = userWeeklyVote.retreats.plus(event.params.amount);
+    userWeeklyVote.volumeRetreat = userWeeklyVote.volumeRetreat.plus(
+      event.params.value
+    );
+    userWeeklyVote.volumeTotal = userWeeklyVote.volumeTotal.plus(
+      event.params.value
+    );
+    album.totalVotes = album.totalVotes.minus(event.params.amount);
+    album.totalVoteValue = album.totalVoteValue.minus(event.params.value);
+    album.volumeRetreat = album.volumeRetreat.plus(event.params.value);
+    album.volumeTotal = album.volumeTotal.plus(event.params.value);
+    albumWeeklyVote.retreats = albumWeeklyVote.retreats.plus(
+      event.params.amount
+    );
+    albumWeeklyVote.volumeRetreat = albumWeeklyVote.volumeRetreat.plus(
+      event.params.value
+    );
+    albumWeeklyVote.volumeTotal = albumWeeklyVote.volumeTotal.plus(
+      event.params.value
+    );
+    userAlbumVote.holding = userAlbumVote.holding.minus(event.params.amount);
+    userAlbumVote.retreats = userAlbumVote.retreats.plus(event.params.amount);
+    userAlbumVote.volumeRetreat = userAlbumVote.volumeRetreat.plus(
+      event.params.value
+    );
+    userAlbumVote.volumeTotal = userAlbumVote.volumeTotal.plus(
+      event.params.value
+    );
   }
 
   let fans = album.fans!;
@@ -338,7 +348,7 @@ export function handleEventVote(event: EventVote): void {
   //   weeklyPool.rewardPoolAmount.toString(),
   // ]);
 }
-
+/*
 export function handleNewRewardDistribution(
   event: NewRewardDistribution
 ): void {
@@ -356,3 +366,4 @@ export function handleNewRewardDistribution(
 }
 
 export function handleClaim(event: ClaimAlbumRewards): void {}
+*/
