@@ -10,18 +10,24 @@
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "album",
-        "type": "address"
+        "internalType": "string",
+        "name": "platform",
+        "type": "string"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "reward",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "id",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "uri",
+        "type": "string"
       }
     ],
-    "name": "ClaimAlbumRewards",
+    "name": "EventBind",
     "type": "event"
   },
   {
@@ -36,11 +42,17 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "week",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "reward",
         "type": "uint256"
       }
     ],
-    "name": "ClaimDailyRewards",
+    "name": "EventClaimReward",
     "type": "event"
   },
   {
@@ -54,9 +66,9 @@
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "album",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "subject",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -104,25 +116,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "album",
-        "type": "address"
-      }
-    ],
-    "name": "NewAlbum",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "_team",
         "type": "uint256"
@@ -142,11 +135,48 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_album",
+        "name": "_subject",
         "type": "uint256"
       }
     ],
     "name": "NewRewardDistribution",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "subject",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "uri",
+        "type": "string"
+      }
+    ],
+    "name": "NewSubject",
     "type": "event"
   },
   {
@@ -179,7 +209,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "albumPoolRewardAmount",
+        "name": "subjectPoolRewardAmount",
         "type": "uint256"
       },
       {
@@ -224,380 +254,156 @@
     "type": "event"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "agentAddress",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "agentFeePercents",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "_agent", "type": "address" },
+      { "internalType": "bytes32", "name": "_checksum", "type": "bytes32" }
     ],
-    "name": "albumRewardsBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "bindAgent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "string", "name": "_platform", "type": "string" },
+      { "internalType": "string", "name": "_id", "type": "string" },
+      { "internalType": "string", "name": "_uri", "type": "string" }
     ],
-    "name": "albumRewardsIndex",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "albumToData",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "artist",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "rewardIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "votes",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "albumsList",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "bindSocial",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "boardFeePercents",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_subject", "type": "bytes32" }
+    ],
+    "name": "calculateSubjectVotePrice",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "price", "type": "uint256" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      }
-    ],
-    "name": "calculateAlbumRewards",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      }
-    ],
-    "name": "calculateAlbumVotePrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
-      }
-    ],
-    "name": "calculateDailyRewards",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_counter",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "_counter", "type": "uint256" }
     ],
     "name": "calculateVotePrice",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "price", "type": "uint256" }
     ],
     "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      }
+      { "internalType": "uint256", "name": "_week", "type": "uint256" }
     ],
-    "name": "claimAlbumRewards",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "claimReward",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_seq",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "_supply", "type": "uint256" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
     ],
-    "name": "claimDailyRewards",
+    "name": "getPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_subject", "type": "bytes32" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+    ],
+    "name": "getRetreatPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_owner", "type": "address" }
+    ],
+    "name": "getSocials",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "components": [
+          { "internalType": "string", "name": "platform", "type": "string" },
+          { "internalType": "string", "name": "id", "type": "string" },
+          { "internalType": "string", "name": "uri", "type": "string" }
+        ],
+        "internalType": "struct SocialData[]",
+        "name": "_socials",
+        "type": "tuple[]"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_subject", "type": "bytes32" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+    ],
+    "name": "getVotePrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_subject", "type": "bytes32" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+    ],
+    "name": "getVotePriceWithFee",
+    "outputs": [
+      { "internalType": "uint256", "name": "_sum", "type": "uint256" },
+      { "internalType": "uint256", "name": "_price", "type": "uint256" },
+      { "internalType": "uint256", "name": "_protocolFee", "type": "uint256" },
+      { "internalType": "uint256", "name": "_subjectFee", "type": "uint256" },
+      { "internalType": "uint256", "name": "_agentFee", "type": "uint256" },
+      { "internalType": "uint256", "name": "_boardFee", "type": "uint256" }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "currentSeqNumber",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_supply",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRetreatPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getVotePrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getVotePriceWithFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_sum",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_price",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_protocolFee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_subjectFee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_agentFee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_boardFee",
-        "type": "uint256"
-      }
-    ],
+    "name": "getWeek",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "guardian",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -612,11 +418,6 @@
         "internalType": "uint256",
         "name": "_startTimeStamp",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_interval",
-        "type": "uint256"
       }
     ],
     "name": "initialize",
@@ -625,46 +426,20 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "interval",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
-      }
+      { "internalType": "string", "name": "_name", "type": "string" },
+      { "internalType": "string", "name": "_image", "type": "string" },
+      { "internalType": "string", "name": "_uri", "type": "string" }
     ],
-    "name": "newAlbum",
-    "outputs": [],
+    "name": "newSubject",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -678,26 +453,14 @@
   {
     "inputs": [],
     "name": "protocolFeeDestination",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "protocolFeePercents",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -710,67 +473,12 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
+      { "internalType": "bytes32", "name": "_subject", "type": "bytes32" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
     ],
     "name": "retreat",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "rewardIntervalMin",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "seqToRewardData",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "starts",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "interval",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "rewardIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "votes",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -788,39 +496,10 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_interval",
-        "type": "uint256"
-      }
-    ],
-    "name": "setInterval",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_protocol",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_subject",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_agent",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_board",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "_protocol", "type": "uint256" },
+      { "internalType": "uint256", "name": "_subject", "type": "uint256" },
+      { "internalType": "uint256", "name": "_agent", "type": "uint256" },
+      { "internalType": "uint256", "name": "_board", "type": "uint256" }
     ],
     "name": "setRewardDistribution",
     "outputs": [],
@@ -829,50 +508,55 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_startTimeStamp",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "bytes32", "name": "", "type": "bytes32" }
     ],
-    "name": "setStartTimeStamp",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "socialPlatform",
+    "outputs": [
+      { "internalType": "string", "name": "platform", "type": "string" },
+      { "internalType": "string", "name": "id", "type": "string" },
+      { "internalType": "string", "name": "uri", "type": "string" }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "startTimeStamp",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "subjectFeePercents",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "subjectToData",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "artist", "type": "address" },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "image", "type": "string" },
+      { "internalType": "string", "name": "uri", "type": "string" },
+      { "internalType": "uint256", "name": "votes", "type": "uint256" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "subjectsList",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -881,88 +565,37 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "string", "name": "_platform", "type": "string" }
     ],
-    "name": "userAlbumRewardIndex",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+    "name": "unbindSocial",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "", "type": "bytes32" },
+      { "internalType": "address", "name": "", "type": "address" }
     ],
+    "name": "userSubjectVotes",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
-    "name": "userAlbumRewardsEarned",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "userWeeklyVotes",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "userAlbumVotes",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
+      { "internalType": "bytes32", "name": "_subject", "type": "bytes32" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
     ],
     "name": "vote",
     "outputs": [],
@@ -970,16 +603,27 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "weeklyReward",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_album",
-        "type": "address"
-      }
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "address", "name": "", "type": "address" }
     ],
-    "name": "vote",
-    "outputs": [],
-    "stateMutability": "payable",
+    "name": "weeklyRewardClaimed",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "weeklyVotes",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

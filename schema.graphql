@@ -1,11 +1,29 @@
-type Album @entity(immutable: true) {
+type Album @entity {
   id: ID!
   address: Bytes!
+  name: String!
+  image: String!
+  url: String!
+
+  # votes
+  votes: [VoteLog!]! @derivedFrom(field: "album")
+
+  # weekly votes
+  weeklyVotes: [AlbumWeeklyVote!]! @derivedFrom(field: "album")
+
+  # user votes
+  userVotes: [UserAlbumVote!]! @derivedFrom(field: "album")
 
   # total votes
   totalVotes: BigInt!
   # accumulated tokens of album vote
-  totalVoteAmount: BigInt!
+  totalVoteValue: BigInt!
+  # accumulated tokens volume of album vote
+  volumeVote: BigInt!
+  # accumulated tokens volume of album retreat
+  volumeRetreat: BigInt!
+  # accumulated tokens volume of album vote and retreat
+  volumeTotal: BigInt!
 
   # the album created timestamp
   createdAt: Int!
@@ -17,6 +35,24 @@ type Album @entity(immutable: true) {
   fans: [User!]
   # the number of fans
   fansNumber: Int!
+}
+
+type AlbumWeeklyVote @entity {
+  id: ID!
+  # album
+  album: Album!
+  # vote week
+  week: Int!
+  # number of votes
+  votes: BigInt!
+  # number of retreats
+  retreats: BigInt!
+  # accumulated tokens volume of album vote
+  volumeVote: BigInt!
+  # accumulated tokens volume of album retreat
+  volumeRetreat: BigInt!
+  # accumulated tokens volume of album vote and retreat
+  volumeTotal: BigInt!
 }
 
 type WeeklyRewardPool @entity(immutable: true) {
@@ -38,7 +74,7 @@ type TokenDistribution @entity(immutable: true) {
   updatedAt: Int!
 }
 
-type User @entity(immutable: true) {
+type User @entity {
   id: ID!
   address: Bytes!
 
@@ -47,28 +83,83 @@ type User @entity(immutable: true) {
   # albums the user create
   albumsCreated: [Album!]
 
-  # total votes
+  # votes
+  votes: [VoteLog!]! @derivedFrom(field: "voter")
+
+  # weekly votes
+  weeklyVotes: [UserWeeklyVote!]! @derivedFrom(field: "user")
+
+  # album votes
+  albumVotes: [UserAlbumVote!]! @derivedFrom(field: "user")
+
+  # number of votes that still hold
   totalVotes: BigInt!
   # total rewards
   totalRewards: BigInt!
 }
 
-type UserVote @entity(immutable: true) {
+type UserAlbumVote @entity {
   id: ID!
   # user
   user: User!
   # album
   album: Album!
-  # amount of votes
-  totalVotes: BigInt!
-  # amount of tokens
-  totalAmount: BigInt!
+  # number of votes that still hold
+  holding: BigInt!
+  # number of votes
+  votes: BigInt!
+  # number of retreats
+  retreats: BigInt!
+  # accumulated tokens volume of album vote
+  volumeVote: BigInt!
+  # accumulated tokens volume of album retreat
+  volumeRetreat: BigInt!
+  # accumulated tokens volume of album vote and retreat
+  volumeTotal: BigInt!
 }
 
-type Statistic @entity(immutable: true) {
+type UserWeeklyVote @entity {
   id: ID!
+  # user
+  user: User!
+  # vote week
+  week: Int!
+  # number of votes
+  votes: BigInt!
+  # number of retreats
+  retreats: BigInt!
+  # accumulated tokens volume of album vote
+  volumeVote: BigInt!
+  # accumulated tokens volume of album retreat
+  volumeRetreat: BigInt!
+  # accumulated tokens volume of album vote and retreat
+  volumeTotal: BigInt!
+}
+
+type VoteLog @entity(immutable: true) {
+  id: ID!
+  # user
+  voter: User!
+  # album
+  album: Album!
+  # vote time
+  time: Int!
+  # is vote or retreat
+  isVote: Boolean!
+  # amount of votes
+  votes: BigInt!
+  # amount of tokens
+  value: BigInt!
+  # latest supply
+  supply: BigInt!
+}
+
+type Statistic @entity {
+  id: ID!
+  # week of last vote
+  week: Int!
   # total vote token amount
-  totalVoteAmount: BigInt!
+  totalVoteValue: BigInt!
   # the number of total vote number
-  totalVoteNumber: Int!
+  totalVoteNumber: BigInt!
 }
