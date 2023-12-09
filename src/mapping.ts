@@ -249,7 +249,6 @@ export function handleEventVote(event: EventVote): void {
     userWeeklyVote.volumeTotal = userWeeklyVote.volumeTotal.plus(
       event.params.value
     );
-    album.totalVotes = album.totalVotes.plus(event.params.amount);
     album.totalVoteValue = album.totalVoteValue.plus(event.params.value);
     album.volumeVote = album.volumeVote.plus(event.params.value);
     album.volumeTotal = album.volumeTotal.plus(event.params.value);
@@ -277,7 +276,6 @@ export function handleEventVote(event: EventVote): void {
     userWeeklyVote.volumeTotal = userWeeklyVote.volumeTotal.plus(
       event.params.value
     );
-    album.totalVotes = album.totalVotes.minus(event.params.amount);
     album.totalVoteValue = album.totalVoteValue.minus(event.params.value);
     album.volumeRetreat = album.volumeRetreat.plus(event.params.value);
     album.volumeTotal = album.volumeTotal.plus(event.params.value);
