@@ -1,16 +1,18 @@
 import { BigInt, Bytes, log, dataSource } from '@graphprotocol/graph-ts';
 import {
-  Album,
-  TokenDistribution,
+  Subject,
+  SubjectWeeklyVote,
   User,
-  WeeklyRewardPool,
+  Social,
+  UserSubjectVote,
+  UserWeeklyVote,
   VoteLog,
   Statistic,
-  AlbumWeeklyVote,
-  UserAlbumVote,
-  UserWeeklyVote,
+  WeeklyStatistic,
+  UserSubjectWeeklyVote,
 } from '../generated/schema';
 import {
+  EventBind,
   EventVote,
   NewSubject,
   RiffianBoard,
@@ -27,7 +29,7 @@ function createOrLoadStatistic(): Statistic {
     statistic = new Statistic('riffian');
     statistic.week = getWeek();
     statistic.totalVoteValue = BigInt.zero();
-    statistic.totalVoteNumber = BigInt.zero();
+    statistic.totalVotes = BigInt.zero();
   }
   return statistic;
 }
@@ -36,44 +38,47 @@ function createOrLoadUser(bytesAddress: Bytes): User {
   let user = User.load(bytesAddress.toHex());
   if (user == null) {
     user = new User(bytesAddress.toHex());
-    user.totalRewards = BigInt.fromI32(0);
-    user.totalVotes = BigInt.fromI32(0);
     user.address = bytesAddress;
-    user.albumsVoted = [];
-    user.albumsCreated = [];
+    user.holding = BigInt.zero();
+    user.rewardClaimed = BigInt.zero();
     user.save();
   }
   return user as User;
 }
 
-function createOrLoadAlbum(bytesAlbum: Bytes): Album {
-  let album = Album.load(bytesAlbum.toHex());
-  if (album == null) {
-    album = new Album(bytesAlbum.toHex());
-    album.address = bytesAlbum;
-    album.name = '';
-    album.image = '';
-    album.url = '';
-    album.createdAt = 0;
-    album.artist = '';
-    album.fans = [];
-    album.fansNumber = 0;
-    album.totalVoteValue = BigInt.zero();
-    album.volumeVote = BigInt.zero();
-    album.volumeRetreat = BigInt.zero();
-    album.volumeTotal = BigInt.zero();
-    album.totalVotes = BigInt.zero();
-    album.lastVoteAt = 0;
-    album.save();
+function createOrLoadSubject(bytesSubject: Bytes): Subject {
+  let subject = Subject.load(bytesSubject.toHex());
+  if (subject == null) {
+    subject = new Subject(bytesSubject.toHex());
+    subject.address = bytesSubject;
+    subject.name = '';
+    subject.image = '';
+    subject.uri = '';
+    subject.createdAt = 0;
+    subject.lastVoteAt = 0;
+    subject.creator = '';
+    subject.fans = [];
+    subject.fansNumber = 0;
+    subject.supply = BigInt.zero();
+    subject.totalVoteValue = BigInt.zero();
+    subject.volumeVote = BigInt.zero();
+    subject.volumeRetreat = BigInt.zero();
+    subject.volumeTotal = BigInt.zero();
+    subject.save();
   }
-  return album as Album;
+  return subject;
 }
 
-function createOrLoadAlbumWeeklyVote(album: Bytes, week: i32): AlbumWeeklyVote {
-  let weeklyVote = AlbumWeeklyVote.load(album.toHex() + '-' + week.toString());
+function createOrLoadSubjectWeeklyVote(
+  subject: Bytes,
+  week: i32
+): SubjectWeeklyVote {
+  let weeklyVote = SubjectWeeklyVote.load(
+    subject.toHex() + '-' + week.toString()
+  );
   if (weeklyVote == null) {
-    weeklyVote = new AlbumWeeklyVote(album.toHex() + '-' + week.toString());
-    weeklyVote.album = album.toHex();
+    weeklyVote = new SubjectWeeklyVote(subject.toHex() + '-' + week.toString());
+    weeklyVote.subject = subject.toHex();
     weeklyVote.week = week;
     weeklyVote.votes = BigInt.zero();
     weeklyVote.retreats = BigInt.zero();
@@ -85,21 +90,26 @@ function createOrLoadAlbumWeeklyVote(album: Bytes, week: i32): AlbumWeeklyVote {
   return weeklyVote;
 }
 
-function createOrLoadUserAlbumVote(user: Bytes, album: Bytes): UserAlbumVote {
-  let userAlbumVote = UserAlbumVote.load(user.toHex() + '-' + album.toHex());
-  if (userAlbumVote == null) {
-    userAlbumVote = new UserAlbumVote(user.toHex() + '-' + album.toHex());
-    userAlbumVote.user = user.toHex();
-    userAlbumVote.album = album.toHex();
-    userAlbumVote.holding = BigInt.zero();
-    userAlbumVote.votes = BigInt.zero();
-    userAlbumVote.retreats = BigInt.zero();
-    userAlbumVote.volumeVote = BigInt.zero();
-    userAlbumVote.volumeRetreat = BigInt.zero();
-    userAlbumVote.volumeTotal = BigInt.zero();
-    userAlbumVote.save();
+function createOrLoadUserSubjectVote(
+  user: Bytes,
+  subject: Bytes
+): UserSubjectVote {
+  let userSubjectVote = UserSubjectVote.load(
+    user.toHex() + '-' + subject.toHex()
+  );
+  if (userSubjectVote == null) {
+    userSubjectVote = new UserSubjectVote(user.toHex() + '-' + subject.toHex());
+    userSubjectVote.user = user.toHex();
+    userSubjectVote.subject = subject.toHex();
+    userSubjectVote.holding = BigInt.zero();
+    userSubjectVote.votes = BigInt.zero();
+    userSubjectVote.retreats = BigInt.zero();
+    userSubjectVote.volumeVote = BigInt.zero();
+    userSubjectVote.volumeRetreat = BigInt.zero();
+    userSubjectVote.volumeTotal = BigInt.zero();
+    userSubjectVote.save();
   }
-  return userAlbumVote;
+  return userSubjectVote;
 }
 
 function createOrLoadUserWeeklyVote(user: Bytes, week: i32): UserWeeklyVote {
@@ -118,85 +128,66 @@ function createOrLoadUserWeeklyVote(user: Bytes, week: i32): UserWeeklyVote {
   return weeklyVote;
 }
 
-function createOrLoadWeeklyRewardPool(
-  bigIntSeq: BigInt,
-  timestamp: BigInt
-): WeeklyRewardPool {
-  let weeklyPool = WeeklyRewardPool.load(bigIntSeq.toString());
-  if (weeklyPool == null) {
-    weeklyPool = new WeeklyRewardPool(bigIntSeq.toString());
-    weeklyPool.createdAt = timestamp.toI32();
-    weeklyPool.rewardPoolAmount = BigInt.fromI32(0);
-    weeklyPool.updatedAt = 0;
-    weeklyPool.save();
+function createOrLoadUserSubjectWeeklyVote(
+  user: Bytes,
+  subject: Bytes,
+  week: i32
+): UserSubjectWeeklyVote {
+  let key = user.toHex() + '-' + subject.toHex() + '-' + week.toString();
+  let votes = UserSubjectWeeklyVote.load(key);
+  if (votes == null) {
+    votes = new UserSubjectWeeklyVote(key);
+    votes.user = user.toHex();
+    votes.subject = subject.toHex();
+    votes.week = week;
+    votes.holding = BigInt.zero();
+    votes.save();
   }
-  return weeklyPool as WeeklyRewardPool;
+  return votes;
 }
 
-export function handleNewAlbum(event: NewSubject): void {
-  let album = createOrLoadAlbum(event.params.subject);
-  album.name = event.params.name;
-  album.image = event.params.image;
-  album.url = event.params.uri;
-  album.createdAt = event.block.timestamp.toI32();
-  album.artist = event.transaction.from.toHex();
-  album.save();
-  // create user
+function createOrLoadWeeklyStatistic(week: i32): WeeklyStatistic {
+  let statis = WeeklyStatistic.load(week.toString());
+  if (statis == null) {
+    statis = new WeeklyStatistic(week.toString());
+    statis.week = week;
+    statis.reward = BigInt.zero();
+    statis.holding = BigInt.zero();
+    statis.votes = BigInt.zero();
+    statis.retreats = BigInt.zero();
+    statis.volumeVote = BigInt.zero();
+    statis.volumeRetreat = BigInt.zero();
+    statis.volumeTotal = BigInt.zero();
+    statis.save();
+  }
+  return statis;
+}
+
+export function handleEventBind(event: EventBind): void {
+  let user = createOrLoadUser(event.params.account);
+
+  let key = user.address.toHex() + '-' + event.params.platform;
+  let social = Social.load(key);
+  if (social == null) {
+    social = new Social(key);
+    social.user = user.address.toHex();
+    social.platform = event.params.platform;
+  }
+  social.pid = event.params.id;
+  social.uri = event.params.uri;
+  social.save();
+}
+
+export function handleNewSubject(event: NewSubject): void {
   let user = createOrLoadUser(event.params.owner);
-  let creates = user.albumsCreated!;
-  creates.push(event.params.subject.toHex());
-  user.albumsCreated = creates;
-  user.save();
-
-  log.info('newAlbum user: {}, album:{}', [
-    user.address.toHex(),
-    album.address.toHex(),
-  ]);
+  let subject = createOrLoadSubject(event.params.subject);
+  subject.name = event.params.name;
+  subject.image = event.params.image;
+  subject.uri = event.params.uri;
+  subject.createdAt = event.block.timestamp.toI32();
+  subject.creator = user.address.toHex();
+  subject.save();
 }
-/*
-export function handleNewVote(event: NewVote): void {
-  // update vote user
-  let user = createOrLoadUser(event.params.from);
-  user.address = event.params.from;
-  user.totalVotes.plus(BigInt.fromI32(1));
-
-  // update album
-  let album = createOrLoadAlbum(event.params.to, event.block.timestamp);
-  album.lastVoteAt = event.block.timestamp.toI32();
-  album.totalVotes.plus(BigInt.fromI32(1));
-  album.totalVoteAmount.plus(event.params.albumPoolRewardAmount);
-  let fansIndex = album.fans!.indexOf(user.address.toHex());
-  if (fansIndex == -1) {
-    album.fansNumber += 1;
-    let fans = album.fans!;
-    fans.push(user.address.toHex());
-    album.fans = fans;
-    let voted = user.albumsVoted!;
-    voted.push(album.id);
-    user.albumsVoted = voted;
-  } else {
-    log.info("user votes multi tiems", []);
-  }
-  user.save();
-  album.save();
-
-  // update weeklyPool
-  let weeklyPool = createOrLoadWeeklyRewardPool(
-    event.params.seq,
-    event.block.timestamp
-  );
-  weeklyPool.updatedAt = event.block.timestamp.toI32();
-  weeklyPool.rewardPoolAmount.plus(event.params.dailyRewardAmount);
-  weeklyPool.save();
-
-  log.debug("voting user: {}, album:{}, pool:{},{}", [
-    user.address.toHex(),
-    album.address.toHex(),
-    weeklyPool.id.toString(),
-    weeklyPool.rewardPoolAmount.toString(),
-  ]);
-}
-*/
 
 export function handleEventVote(event: EventVote): void {
   // save this vote
@@ -204,7 +195,7 @@ export function handleEventVote(event: EventVote): void {
     event.block.number.toString() + '-' + event.transaction.index.toString()
   );
   voteLog.voter = event.params.voter.toHex();
-  voteLog.album = event.params.subject.toHex();
+  voteLog.subject = event.params.subject.toHex();
   voteLog.time = event.block.timestamp.toI32();
   voteLog.isVote = event.params.isVote;
   voteLog.votes = event.params.amount;
@@ -219,29 +210,42 @@ export function handleEventVote(event: EventVote): void {
     statistic.week = getWeek();
   }
   if (event.params.isVote) {
-    statistic.totalVoteValue.plus(event.params.value);
-    statistic.totalVoteNumber.plus(event.params.amount);
+    statistic.totalVoteValue = statistic.totalVoteValue.plus(
+      event.params.value
+    );
+    statistic.totalVotes = statistic.totalVotes.plus(event.params.amount);
   }
   statistic.save();
 
-  // update album
-  let album = createOrLoadAlbum(event.params.subject);
-  album.lastVoteAt = event.block.timestamp.toI32();
-  album.totalVotes = event.params.supply;
-  // update album weekly vote
-  let albumWeeklyVote = createOrLoadAlbumWeeklyVote(
-    album.address,
+  // update weekly statistic
+  let weekStatistic = createOrLoadWeeklyStatistic(statistic.week);
+  // update subject
+  let subject = createOrLoadSubject(event.params.subject);
+  subject.lastVoteAt = event.block.timestamp.toI32();
+  subject.supply = event.params.supply;
+  // update subject weekly vote
+  let subjectWeeklyVote = createOrLoadSubjectWeeklyVote(
+    subject.address,
     statistic.week
   );
   // update vote user
   let user = createOrLoadUser(event.params.voter);
   // update user weekly vote
   let userWeeklyVote = createOrLoadUserWeeklyVote(user.address, statistic.week);
-  // update user album vote
-  let userAlbumVote = createOrLoadUserAlbumVote(user.address, album.address);
+  // update user weekly vote
+  let userSubjectWeeklyVote = createOrLoadUserSubjectWeeklyVote(
+    user.address,
+    subject.address,
+    statistic.week
+  );
+  // update user subject vote
+  let userSubjectVote = createOrLoadUserSubjectVote(
+    user.address,
+    subject.address
+  );
 
   if (event.params.isVote) {
-    user.totalVotes = user.totalVotes.plus(event.params.amount);
+    user.holding = user.holding.plus(event.params.amount);
     userWeeklyVote.votes = userWeeklyVote.votes.plus(event.params.amount);
     userWeeklyVote.volumeVote = userWeeklyVote.volumeVote.plus(
       event.params.value
@@ -249,26 +253,37 @@ export function handleEventVote(event: EventVote): void {
     userWeeklyVote.volumeTotal = userWeeklyVote.volumeTotal.plus(
       event.params.value
     );
-    album.totalVoteValue = album.totalVoteValue.plus(event.params.value);
-    album.volumeVote = album.volumeVote.plus(event.params.value);
-    album.volumeTotal = album.volumeTotal.plus(event.params.value);
-    albumWeeklyVote.votes = albumWeeklyVote.votes.plus(event.params.amount);
-    albumWeeklyVote.volumeVote = albumWeeklyVote.volumeVote.plus(
+    subject.totalVoteValue = subject.totalVoteValue.plus(event.params.value);
+    subject.volumeVote = subject.volumeVote.plus(event.params.value);
+    subject.volumeTotal = subject.volumeTotal.plus(event.params.value);
+    subjectWeeklyVote.votes = subjectWeeklyVote.votes.plus(event.params.amount);
+    subjectWeeklyVote.volumeVote = subjectWeeklyVote.volumeVote.plus(
       event.params.value
     );
-    albumWeeklyVote.volumeTotal = albumWeeklyVote.volumeTotal.plus(
+    subjectWeeklyVote.volumeTotal = subjectWeeklyVote.volumeTotal.plus(
       event.params.value
     );
-    userAlbumVote.holding = userAlbumVote.holding.plus(event.params.amount);
-    userAlbumVote.votes = userAlbumVote.votes.plus(event.params.amount);
-    userAlbumVote.volumeVote = userAlbumVote.volumeVote.plus(
+    userSubjectVote.holding = userSubjectVote.holding.plus(event.params.amount);
+    userSubjectVote.votes = userSubjectVote.votes.plus(event.params.amount);
+    userSubjectVote.volumeVote = userSubjectVote.volumeVote.plus(
       event.params.value
     );
-    userAlbumVote.volumeTotal = userAlbumVote.volumeTotal.plus(
+    userSubjectVote.volumeTotal = userSubjectVote.volumeTotal.plus(
+      event.params.value
+    );
+    userSubjectWeeklyVote.holding = userSubjectWeeklyVote.holding.plus(
+      event.params.amount
+    );
+    weekStatistic.holding = weekStatistic.holding.plus(event.params.amount);
+    weekStatistic.votes = weekStatistic.votes.plus(event.params.amount);
+    weekStatistic.volumeVote = weekStatistic.volumeVote.plus(
+      event.params.value
+    );
+    weekStatistic.volumeTotal = weekStatistic.volumeTotal.plus(
       event.params.value
     );
   } else {
-    user.totalVotes = user.totalVotes.minus(event.params.amount);
+    user.holding = user.holding.minus(event.params.amount);
     userWeeklyVote.retreats = userWeeklyVote.retreats.plus(event.params.amount);
     userWeeklyVote.volumeRetreat = userWeeklyVote.volumeRetreat.plus(
       event.params.value
@@ -276,75 +291,72 @@ export function handleEventVote(event: EventVote): void {
     userWeeklyVote.volumeTotal = userWeeklyVote.volumeTotal.plus(
       event.params.value
     );
-    album.totalVoteValue = album.totalVoteValue.minus(event.params.value);
-    album.volumeRetreat = album.volumeRetreat.plus(event.params.value);
-    album.volumeTotal = album.volumeTotal.plus(event.params.value);
-    albumWeeklyVote.retreats = albumWeeklyVote.retreats.plus(
+    subject.totalVoteValue = subject.totalVoteValue.minus(event.params.value);
+    subject.volumeRetreat = subject.volumeRetreat.plus(event.params.value);
+    subject.volumeTotal = subject.volumeTotal.plus(event.params.value);
+    subjectWeeklyVote.retreats = subjectWeeklyVote.retreats.plus(
       event.params.amount
     );
-    albumWeeklyVote.volumeRetreat = albumWeeklyVote.volumeRetreat.plus(
+    subjectWeeklyVote.volumeRetreat = subjectWeeklyVote.volumeRetreat.plus(
       event.params.value
     );
-    albumWeeklyVote.volumeTotal = albumWeeklyVote.volumeTotal.plus(
+    subjectWeeklyVote.volumeTotal = subjectWeeklyVote.volumeTotal.plus(
       event.params.value
     );
-    userAlbumVote.holding = userAlbumVote.holding.minus(event.params.amount);
-    userAlbumVote.retreats = userAlbumVote.retreats.plus(event.params.amount);
-    userAlbumVote.volumeRetreat = userAlbumVote.volumeRetreat.plus(
+    userSubjectVote.holding = userSubjectVote.holding.minus(
+      event.params.amount
+    );
+    userSubjectVote.retreats = userSubjectVote.retreats.plus(
+      event.params.amount
+    );
+    userSubjectVote.volumeRetreat = userSubjectVote.volumeRetreat.plus(
       event.params.value
     );
-    userAlbumVote.volumeTotal = userAlbumVote.volumeTotal.plus(
+    userSubjectVote.volumeTotal = userSubjectVote.volumeTotal.plus(
+      event.params.value
+    );
+    if (userSubjectWeeklyVote.holding.gt(BigInt.zero())) {
+      let amountToDecrease = event.params.amount;
+      if (userSubjectWeeklyVote.holding < amountToDecrease) {
+        amountToDecrease = userSubjectWeeklyVote.holding;
+      }
+      userSubjectWeeklyVote.holding =
+        userSubjectWeeklyVote.holding.minus(amountToDecrease);
+      userWeeklyVote.votes = userWeeklyVote.votes.minus(amountToDecrease);
+      weekStatistic.holding = weekStatistic.holding.minus(event.params.amount);
+    }
+    weekStatistic.retreats = weekStatistic.retreats.plus(event.params.amount);
+    weekStatistic.retreats = weekStatistic.retreats.plus(event.params.amount);
+    weekStatistic.volumeRetreat = weekStatistic.volumeRetreat.plus(
+      event.params.value
+    );
+    weekStatistic.volumeTotal = weekStatistic.volumeTotal.plus(
       event.params.value
     );
   }
 
-  let fans = album.fans!;
+  let fans = subject.fans!;
   let fansIndex = fans.indexOf(user.address.toHex());
-  let voted = user.albumsVoted!;
-  if (fansIndex == -1 && userAlbumVote.holding.gt(BigInt.zero())) {
-    album.fansNumber += 1;
+  if (fansIndex == -1 && userSubjectVote.holding.gt(BigInt.zero())) {
+    subject.fansNumber += 1;
     // add a new vote user
     fans.push(user.address.toHex());
-    album.fans = fans;
-    // add new albm
-    voted.push(album.id);
-    user.albumsVoted = voted;
-  } else if (fansIndex != -1 && userAlbumVote.holding.equals(BigInt.zero())) {
-    // remove a fan from album
-    album.fansNumber -= 1;
+    subject.fans = fans;
+  } else if (fansIndex != -1 && userSubjectVote.holding.equals(BigInt.zero())) {
+    // remove a fan from subject
+    subject.fansNumber -= 1;
     fans.splice(fansIndex, 1);
-    album.fans = fans;
-    // remove a vote from user
-    let userVoteIndex = voted.indexOf(user.id);
-    voted.splice(userVoteIndex, 1);
-    user.albumsVoted = voted;
-    // delete uservote
+    subject.fans = fans;
   } else {
     log.info('user votes multi tiems', []);
   }
   user.save();
   userWeeklyVote.save();
-  userAlbumVote.save();
-  album.save();
-  albumWeeklyVote.save();
-
-  // // update weeklyPool
-  // let weeklyPool = WeeklyRewardPool.load(event.params.seq.toString());
-  // if (weeklyPool == null) {
-  //   weeklyPool = new WeeklyRewardPool(event.params.seq.toString());
-  //   weeklyPool.createdAt = event.block.timestamp.toI32();
-  //   weeklyPool.rewardPoolAmount = BigInt.fromI32(0);
-  // }
-  // weeklyPool.updatedAt = event.block.timestamp.toI32();
-  // weeklyPool.rewardPoolAmount.plus(event.params.dailyRewardAmount);
-  // weeklyPool.save();
-
-  // log.debug('voting user: {}, album:{}, pool:{},{}', [
-  //   user.address.toHex(),
-  //   album.address.toHex(),
-  //   weeklyPool.id.toString(),
-  //   weeklyPool.rewardPoolAmount.toString(),
-  // ]);
+  userSubjectVote.save();
+  userSubjectWeeklyVote.save();
+  subject.save();
+  subjectWeeklyVote.save();
+  weekStatistic.save();
 }
 /*
 export function handleNewRewardDistribution(
@@ -355,7 +367,7 @@ export function handleNewRewardDistribution(
     dis = new TokenDistribution(event.block.timestamp.toHex());
     dis.createdAt = event.block.timestamp.toI32();
   }
-  dis.albumPercents = event.params._album.toI32();
+  dis.SubjectPercents = event.params._Subject.toI32();
   dis.artistPercents = event.params._artist.toI32();
   dis.teamPercents = event.params._team.toI32();
   dis.weeklyPercents = event.params._daily.toI32();
@@ -363,5 +375,5 @@ export function handleNewRewardDistribution(
   dis.save();
 }
 
-export function handleClaim(event: ClaimAlbumRewards): void {}
+export function handleClaim(event: ClaimSubjectRewards): void {}
 */

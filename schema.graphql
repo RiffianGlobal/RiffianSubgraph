@@ -1,147 +1,153 @@
-type Album @entity {
+type Subject @entity {
   id: ID!
   address: Bytes!
   name: String!
   image: String!
-  url: String!
+  uri: String!
 
-  # votes
-  votes: [VoteLog!]! @derivedFrom(field: "album")
+  "vote history"
+  voteLogs: [VoteLog!]! @derivedFrom(field: "subject")
 
-  # weekly votes
-  weeklyVotes: [AlbumWeeklyVote!]! @derivedFrom(field: "album")
+  "vote statistic per week"
+  weeklyVotes: [SubjectWeeklyVote!]! @derivedFrom(field: "subject")
 
-  # user votes
-  userVotes: [UserAlbumVote!]! @derivedFrom(field: "album")
+  "vote statistic per user"
+  userVotes: [UserSubjectVote!]! @derivedFrom(field: "subject")
 
-  # total votes
-  totalVotes: BigInt!
-  # accumulated tokens of album vote
+  "current number of votes that still holds"
+  supply: BigInt!
+  "total value of votes that still holds"
   totalVoteValue: BigInt!
-  # accumulated tokens volume of album vote
+
+  "volume of all votes"
   volumeVote: BigInt!
-  # accumulated tokens volume of album retreat
+  "volume of all retreats"
   volumeRetreat: BigInt!
-  # accumulated tokens volume of album vote and retreat
+  "volume of both votes and retreats"
   volumeTotal: BigInt!
 
-  # the album created timestamp
+  # the subject created timestamp
   createdAt: Int!
   # the timestamp of last vote
   lastVoteAt: Int!
 
-  artist: User!
+  creator: User!
   # the list of all fans
   fans: [User!]
   # the number of fans
   fansNumber: Int!
 }
 
-type AlbumWeeklyVote @entity {
+"weekly vote statistic by subject"
+type SubjectWeeklyVote @entity {
   id: ID!
-  # album
-  album: Album!
+  # subject
+  subject: Subject!
   # vote week
   week: Int!
-  # number of votes
+  "number of votes"
   votes: BigInt!
-  # number of retreats
+  "number of retreats"
   retreats: BigInt!
-  # accumulated tokens volume of album vote
+  "volume of all votes"
   volumeVote: BigInt!
-  # accumulated tokens volume of album retreat
+  "volume of all retreats"
   volumeRetreat: BigInt!
-  # accumulated tokens volume of album vote and retreat
+  "volume of both votes and retreats"
   volumeTotal: BigInt!
-}
-
-type WeeklyRewardPool @entity(immutable: true) {
-  id: ID!
-  # the total number of reward tokens
-  rewardPoolAmount: BigInt!
-  #
-  createdAt: Int!
-  updatedAt: Int!
-}
-
-type TokenDistribution @entity(immutable: true) {
-  id: ID!
-  albumPercents: Int!
-  weeklyPercents: Int!
-  teamPercents: Int!
-  artistPercents: Int!
-  createdAt: Int!
-  updatedAt: Int!
 }
 
 type User @entity {
   id: ID!
   address: Bytes!
 
-  # albums the user vote
-  albumsVoted: [Album!]
-  # albums the user create
-  albumsCreated: [Album!]
+  socials: [Social!]! @derivedFrom(field: "user")
 
-  # votes
+  "subjects the user created"
+  subjectsCreated: [Subject!]! @derivedFrom(field: "creator")
+
+  "votes of current user"
   votes: [VoteLog!]! @derivedFrom(field: "voter")
 
-  # weekly votes
+  "weekly vote statistic of current user"
   weeklyVotes: [UserWeeklyVote!]! @derivedFrom(field: "user")
 
-  # album votes
-  albumVotes: [UserAlbumVote!]! @derivedFrom(field: "user")
+  "subject vote statistic of current user"
+  subjectVotes: [UserSubjectVote!]! @derivedFrom(field: "user")
 
-  # number of votes that still hold
-  totalVotes: BigInt!
-  # total rewards
-  totalRewards: BigInt!
+  "number of votes that still holds"
+  holding: BigInt!
+
+  "claimed reward"
+  rewardClaimed: BigInt!
 }
 
-type UserAlbumVote @entity {
+type Social @entity {
+  id: String!
+  user: User!
+  "platform verification uri"
+  uri: String!
+  platform: String!
+  "platform id"
+  pid: String!
+}
+
+"user vote statistic per subject"
+type UserSubjectVote @entity {
   id: ID!
   # user
   user: User!
-  # album
-  album: Album!
-  # number of votes that still hold
+  # subject
+  subject: Subject!
+  "number of votes that still holds"
   holding: BigInt!
-  # number of votes
+  "number of votes"
   votes: BigInt!
-  # number of retreats
+  "number of retreats"
   retreats: BigInt!
-  # accumulated tokens volume of album vote
+  "volume of all votes"
   volumeVote: BigInt!
-  # accumulated tokens volume of album retreat
+  "volume of all retreats"
   volumeRetreat: BigInt!
-  # accumulated tokens volume of album vote and retreat
+  "volume of both votes and retreats"
   volumeTotal: BigInt!
 }
 
+"user vote statistic by week"
 type UserWeeklyVote @entity {
   id: ID!
   # user
   user: User!
   # vote week
   week: Int!
-  # number of votes
+  "number of votes"
   votes: BigInt!
-  # number of retreats
+  "number of retreats"
   retreats: BigInt!
-  # accumulated tokens volume of album vote
+  "volume of all votes"
   volumeVote: BigInt!
-  # accumulated tokens volume of album retreat
+  "volume of all retreats"
   volumeRetreat: BigInt!
-  # accumulated tokens volume of album vote and retreat
+  "volume of both votes and retreats"
   volumeTotal: BigInt!
+}
+
+"user vote statistic by subject and week"
+type UserSubjectWeeklyVote @entity {
+  id: ID!
+  user: User!
+  subject: Subject!
+  week: Int!
+  "number of votes that still holds"
+  holding: BigInt!
 }
 
 type VoteLog @entity(immutable: true) {
   id: ID!
   # user
   voter: User!
-  # album
-  album: Album!
+  # subject
+  subject: Subject!
   # vote time
   time: Int!
   # is vote or retreat
@@ -155,11 +161,31 @@ type VoteLog @entity(immutable: true) {
 }
 
 type Statistic @entity {
+  "riffian"
   id: ID!
-  # week of last vote
+  "week of last vote"
   week: Int!
   # total vote token amount
   totalVoteValue: BigInt!
   # the number of total vote number
-  totalVoteNumber: BigInt!
+  totalVotes: BigInt!
+}
+
+type WeeklyStatistic @entity {
+  id: ID!
+  week: Int!
+  "accumulated value of reward"
+  reward: BigInt!
+  "number of votes that still holds"
+  holding: BigInt!
+  "number of votes"
+  votes: BigInt!
+  "number of retreats"
+  retreats: BigInt!
+  "volume of all votes"
+  volumeVote: BigInt!
+  "volume of all retreats"
+  volumeRetreat: BigInt!
+  "volume of both votes and retreats"
+  volumeTotal: BigInt!
 }

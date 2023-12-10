@@ -1,11 +1,6 @@
-specVersion: 0.0.8
-description: The Graph Network Smart Contracts on Ethereum
-repository: https://github.com/graphprotocol/graph-network-subgraph
+specVersion: 0.0.5
 schema:
   file: ./schema.graphql
-# features:
-#   - ipfsOnEthereumContracts
-#   - fullTextSearch
 dataSources:
   - kind: ethereum/contract
     name: RiffianBoard
@@ -19,15 +14,24 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Album
+        - Subject
+        - SubjectWeeklyVote
         - User
-        - UserVote
+        - Social
+        - UserSubjectVote
+        - UserWeeklyVote
+        - UserSubjectWeeklyVote
+        - VoteLog
+        - Statistic
+        - WeeklyStatistic
       abis:
         - name: RiffianBoard
           file: ./abis/RiffianBoard.json
       eventHandlers:
         - event: NewSubject(address,bytes32,string,string,string)
-          handler: handleNewAlbum
+          handler: handleNewSubject
         - event: EventVote(address,bytes32,bool,uint256,uint256,uint256)
           handler: handleEventVote
+        - event: EventBind(address,string,string,string)
+          handler: handleEventBind
       file: ./src/mapping.ts

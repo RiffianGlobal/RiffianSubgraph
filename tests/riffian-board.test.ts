@@ -10,29 +10,30 @@ import {
   createMockedFunction,
 } from 'matchstick-as/assembly/index';
 import { Address, BigInt, dataSource, ethereum } from '@graphprotocol/graph-ts';
-import { handleEventVote, handleNewAlbum } from '../src/mapping';
 import {
+  // handleEventBind,
+  handleEventVote,
+  handleNewSubject,
+} from '../src/mapping';
+import {
+  // createEventBindEvent,
   createEventVoteEvent,
-  createNewAlbumEvent,
+  createNewSubjectEvent,
 } from './riffian-board-utils';
-import { Album } from '../generated/schema';
+import { Subject } from '../generated/schema';
 import { RiffianBoard } from '../generated/RiffianBoard/RiffianBoard';
 
-describe('Create an album', () => {
+describe('Create an Subject', () => {
   beforeAll(() => {
     let contractAddress = dataSource.address();
-    let expectedResult = Address.fromString(
-      '0x90cBa2Bbb19ecc291A12066Fd8329D65FA1f1947'
-    );
-    let bigIntParam = BigInt.fromString('1234');
     createMockedFunction(
       contractAddress,
       'getWeek',
       'getWeek():(uint256)'
     ).returns([ethereum.Value.fromSignedBigInt(BigInt.fromI32(1000))]);
 
-    let gravity = RiffianBoard.bind(contractAddress);
-    let result = gravity.getWeek();
+    let board = RiffianBoard.bind(contractAddress);
+    let result = board.getWeek();
 
     assert.equals(
       ethereum.Value.fromSignedBigInt(BigInt.fromI32(1000)),
@@ -42,63 +43,63 @@ describe('Create an album', () => {
   afterEach(() => {
     clearStore();
   });
-  test('1 user creates an album', () => {
+  test('1 user creates an Subject', () => {
     let artist = Address.fromString(
       '0x0000000000000000000000000000000000000001'
     );
-    let album = Address.fromString(
+    let subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
-    let newClaimAlbumRewardsEvent = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent = createNewSubjectEvent(
       artist,
-      album,
+      subject,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent);
+    handleNewSubject(newClaimSubjectRewardsEvent);
     assert.entityCount('User', 1);
-    assert.entityCount('Album', 1);
+    assert.entityCount('Subject', 1);
 
-    let newAlbum = Album.load(album.toHex());
-    assert.assertNotNull(newAlbum);
-    // assert.i32Equals(newAlbum!.fansNumber, 0);
-    assert.fieldEquals('Album', album.toHex(), 'fansNumber', '0', '');
-    assert.fieldEquals('Album', album.toHex(), 'fans', '[]', '');
+    let newSubject = Subject.load(subject.toHex());
+    assert.assertNotNull(newSubject);
+    // assert.i32Equals(newSubject!.fansNumber, 0);
+    assert.fieldEquals('Subject', subject.toHex(), 'fansNumber', '0', '');
+    assert.fieldEquals('Subject', subject.toHex(), 'fans', '[]', '');
   });
 
-  test('1 user creates 2 albums', () => {
+  test('1 user creates 2 Subjects', () => {
     let artist = Address.fromString(
       '0x0000000000000000000000000000000000000001'
     );
-    let album = Address.fromString(
+    let Subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
-    let newClaimAlbumRewardsEvent = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent = createNewSubjectEvent(
       artist,
-      album,
+      Subject,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent);
+    handleNewSubject(newClaimSubjectRewardsEvent);
 
-    let album2 = Address.fromString(
+    let subject2 = Address.fromString(
       '0x0000000000000000000000000000000000000003'
     );
-    let newClaimAlbumRewardsEvent2 = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent2 = createNewSubjectEvent(
       artist,
-      album2,
+      subject2,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent2);
+    handleNewSubject(newClaimSubjectRewardsEvent2);
     let amount = BigInt.fromString('50000000000000');
     let dist = BigInt.fromString('2500000000000');
     let newVoteEvent = createEventVoteEvent(
       artist,
-      album2,
+      subject2,
       true,
       amount,
       dist,
@@ -106,44 +107,44 @@ describe('Create an album', () => {
     );
     handleEventVote(newVoteEvent);
     assert.entityCount('User', 1);
-    assert.entityCount('Album', 2);
+    assert.entityCount('Subject', 2);
   });
 
-  test('2 user creates 2 albums', () => {
+  test('2 user creates 2 Subjects', () => {
     let artist1 = Address.fromString(
       '0x0000000000000000000000000000000000000001'
     );
     let artist2 = Address.fromString(
       '0x0000000000000000000000000000000000000011'
     );
-    let album = Address.fromString(
+    let Subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
-    let newClaimAlbumRewardsEvent = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent = createNewSubjectEvent(
       artist1,
-      album,
+      Subject,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent);
+    handleNewSubject(newClaimSubjectRewardsEvent);
 
-    let album2 = Address.fromString(
+    let Subject2 = Address.fromString(
       '0x0000000000000000000000000000000000000003'
     );
-    let newClaimAlbumRewardsEvent2 = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent2 = createNewSubjectEvent(
       artist2,
-      album2,
+      Subject2,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent2);
+    handleNewSubject(newClaimSubjectRewardsEvent2);
     let amount = BigInt.fromString('50000000000000');
     let dist = BigInt.fromString('2500000000000');
     let newVoteEvent = createEventVoteEvent(
       artist1,
-      album2,
+      Subject2,
       true,
       amount,
       dist,
@@ -151,41 +152,41 @@ describe('Create an album', () => {
     );
     handleEventVote(newVoteEvent);
     assert.entityCount('User', 2);
-    assert.entityCount('Album', 2);
+    assert.entityCount('Subject', 2);
   });
 });
 
-describe('Vote an album', () => {
+describe('Vote an Subject', () => {
   beforeEach(() => {
-    // create a album
+    // create a Subject
     let artist = Address.fromString(
       '0x0000000000000000000000000000000000000001'
     );
-    let album = Address.fromString(
+    let Subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
-    let newClaimAlbumRewardsEvent = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent = createNewSubjectEvent(
       artist,
-      album,
+      Subject,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent);
+    handleNewSubject(newClaimSubjectRewardsEvent);
   });
   afterEach(() => {
     clearStore();
   });
   test('new vote', () => {
     let user = Address.fromString('0x0000000000000000000000000000000000000003');
-    let album = Address.fromString(
+    let Subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
     let amount = BigInt.fromI32(123);
     let dist = BigInt.fromI32(1);
     let newVoteEvent = createEventVoteEvent(
       user,
-      album,
+      Subject,
       true,
       amount,
       dist,
@@ -204,28 +205,28 @@ describe('Vote an album', () => {
 
 describe('Event vote', () => {
   beforeEach(() => {
-    // create a album
+    // create a Subject
     let artist = Address.fromString(
       '0x0000000000000000000000000000000000000001'
     );
-    let album = Address.fromString(
+    let Subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
-    let newClaimAlbumRewardsEvent = createNewAlbumEvent(
+    let newClaimSubjectRewardsEvent = createNewSubjectEvent(
       artist,
-      album,
+      Subject,
       'test',
       'image',
       'url'
     );
-    handleNewAlbum(newClaimAlbumRewardsEvent);
+    handleNewSubject(newClaimSubjectRewardsEvent);
   });
   afterEach(() => {
     clearStore();
   });
   test('new vote', () => {
     let user = Address.fromString('0x0000000000000000000000000000000000000003');
-    let album = Address.fromString(
+    let Subject = Address.fromString(
       '0x0000000000000000000000000000000000000002'
     );
     let amount = BigInt.fromI32(123);
@@ -233,7 +234,7 @@ describe('Event vote', () => {
     let supply = BigInt.fromI32(1);
     let eventVote = createEventVoteEvent(
       user,
-      album,
+      Subject,
       true,
       amount,
       value,
@@ -246,7 +247,7 @@ describe('Event vote', () => {
       'id',
       '0x0000000000000000000000000000000000000001'
     );
-    assert.entityCount('UserAlbumVote', 1);
+    assert.entityCount('UserSubjectVote', 1);
     // assert.entityCount('')
   });
 });
