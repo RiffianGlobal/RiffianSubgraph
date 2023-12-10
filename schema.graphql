@@ -174,8 +174,6 @@ type Statistic @entity {
 type WeeklyStatistic @entity {
   id: ID!
   week: Int!
-  "accumulated value of reward"
-  reward: BigInt!
   "number of votes that still holds"
   holding: BigInt!
   "number of votes"

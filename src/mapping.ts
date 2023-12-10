@@ -151,7 +151,6 @@ function createOrLoadWeeklyStatistic(week: i32): WeeklyStatistic {
   if (statis == null) {
     statis = new WeeklyStatistic(week.toString());
     statis.week = week;
-    statis.reward = BigInt.zero();
     statis.holding = BigInt.zero();
     statis.votes = BigInt.zero();
     statis.retreats = BigInt.zero();
