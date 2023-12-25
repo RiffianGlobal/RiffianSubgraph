@@ -35,3 +35,28 @@ dataSources:
         - event: EventBind(address,string,string,string)
           handler: handleEventBind
       file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: DoidRegistry
+    network: fantom-testnet
+    source:
+      # address: ''
+      abi: DoidRegistry
+      startBlock: 22790468
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Domain
+        - Account
+      abis:
+        - name: DoidRegistry
+          file: ./abis/DoidRegistry.json
+      eventHandlers:
+        - event: NameRegistered(indexed uint256,string,indexed address)
+          handler: handleNameRegistered
+        - event: AddressChanged(indexed bytes32,uint256,bytes)
+          handler: handleAddressChanged
+        - event: SetReverse(address,bytes32)
+          handler: handleSetReverse
+      file: ./src/doidRegistry.ts

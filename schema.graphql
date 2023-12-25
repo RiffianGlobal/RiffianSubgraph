@@ -187,3 +187,23 @@ type WeeklyStatistic @entity {
   "volume of both votes and retreats"
   volumeTotal: BigInt!
 }
+
+type Domain @entity {
+  # id = keccak256(namehash("doid") + keccak256(name))
+  id: ID!
+  # name of domain
+  name: String
+  # reserveNode = keccak256(namehash(".addr.reverse.") + keccak256(address))
+  reserveNode: Bytes
+  # owner of the domain
+  owner: Account!
+  # the address of the doimain
+  addr: Account!
+  # timestamp of created datetime
+  createdAt: BigInt!
+}
+
+type Account @entity {
+  id: ID!
+  doimains: [Domain!]! @derivedFrom(field: "owner")
+}
