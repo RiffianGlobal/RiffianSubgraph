@@ -23,7 +23,7 @@ import {
 
 var rootNode: ByteArray = byteArrayFromHex(DOID_NODE);
 
-function createOrGetDomain(id: BigInt): Domain {
+function createOrGetDomain(id: BigInt, ts: BigInt): Domain {
   // id = keccak(name), domain_id = keccak(keccak('doid')+id)
   let label = uint256ToByteArray(id);
   let domain = Domain.load(crypto.keccak256(concat(rootNode, label)).toHex());
@@ -31,6 +31,7 @@ function createOrGetDomain(id: BigInt): Domain {
     domain = new Domain(crypto.keccak256(concat(rootNode, label)).toHex());
     domain.owner = EMPTY_ADDRESS;
     domain.addr = EMPTY_ADDRESS;
+    domain.createdAt = ts;
     domain.save();
   }
   return domain;
@@ -40,19 +41,24 @@ function createOrGetAccount(owner: string): Account {
   let account = Account.load(owner);
   if (account == null) {
     account = new Account(owner);
+    account.doimains = [];
     account.save();
   }
   return account;
 }
 
 export function handleNameRegistered(event: NameRegistered): void {
-  let domain = createOrGetDomain(event.params.id);
+  let domain = createOrGetDomain(event.params.id, event.block.timestamp);
   domain.createdAt = event.block.timestamp;
   domain.name = event.params.name + '.doid';
   domain.owner = event.params.owner.toHex();
+  domain.addr = event.params.owner.toHex();
   domain.save();
 
   let account = createOrGetAccount(event.params.owner.toHex());
+  let domains = account!.doimains;
+  domains.push(domain.id);
+  account.doimains = domains;
   account.save();
 }
 
