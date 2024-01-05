@@ -9,7 +9,7 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ riffian/RiffianBoard",
     "create-local": "graph create --node http://localhost:8020/ riffian/RiffianBoard",
     "remove-local": "graph remove --node http://localhost:8020/ riffian/RiffianBoard",
-    "deploy-local": "graph deploy riffian/RiffianBoard --node=http://127.0.0.1:8080 --ipfs=http://127.0.0.1:8081"
+    "deploy-local": "graph deploy riffian/RiffianBoard --node=http://127.0.0.1:8080 --ipfs=http://127.0.0.1:8081 --network=riffian-testnet"
   },
   "devDependencies": {
     "@graphprotocol/contracts": "5.3.3",

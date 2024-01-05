@@ -6,10 +6,12 @@
   },
   "riffian-testnet": {
     "RiffianBoard": {
-      "address": "0x6c5BDD99537F344838796DeDFf6cD98b4908c57c"
+      "address": "0x6c5BDD99537F344838796DeDFf6cD98b4908c57c",
+      "startBlock": 200
     },
     "DoidRegistry": {
-      "address": "0x20507b80c92d32DDfd733E81aF255b549421dfd8"
+      "address": "0x20507b80c92d32DDfd733E81aF255b549421dfd8",
+      "startBlock": 200
     }
   },
   "riffian": {
