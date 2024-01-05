@@ -41,7 +41,7 @@ function createOrGetAccount(owner: string): Account {
   let account = Account.load(owner);
   if (account == null) {
     account = new Account(owner);
-    account.doimains = [];
+    // account.doimains = [];
     account.save();
   }
   return account;
@@ -56,9 +56,9 @@ export function handleNameRegistered(event: NameRegistered): void {
   domain.save();
 
   let account = createOrGetAccount(event.params.owner.toHex());
-  let domains = account!.doimains;
-  domains.push(domain.id);
-  account.doimains = domains;
+  let domains = account.doimains;
+  // domains.push(domain.id);
+  // account.doimains = domains;
   account.save();
 }
 
