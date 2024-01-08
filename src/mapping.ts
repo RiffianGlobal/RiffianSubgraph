@@ -13,10 +13,12 @@ import {
 } from '../generated/schema';
 import {
   EventBind,
+  EventSubjectChange,
   EventVote,
   NewSubject,
   RiffianBoard,
 } from '../generated/RiffianBoard/RiffianBoard';
+import { createOrLoadUser } from './utils';
 
 function getWeek(): i32 {
   let contract = RiffianBoard.bind(dataSource.address());
@@ -32,18 +34,6 @@ function createOrLoadStatistic(): Statistic {
     statistic.totalVotes = BigInt.zero();
   }
   return statistic;
-}
-
-function createOrLoadUser(bytesAddress: Bytes): User {
-  let user = User.load(bytesAddress.toHex());
-  if (user == null) {
-    user = new User(bytesAddress.toHex());
-    user.address = bytesAddress;
-    user.holding = BigInt.zero();
-    user.rewardClaimed = BigInt.zero();
-    user.save();
-  }
-  return user as User;
 }
 
 function createOrLoadSubject(bytesSubject: Bytes): Subject {
@@ -356,6 +346,20 @@ export function handleEventVote(event: EventVote): void {
   subject.save();
   subjectWeeklyVote.save();
   weekStatistic.save();
+}
+
+export function handleEventSubjectChange(event: EventSubjectChange): void {
+  let subject = createOrLoadSubject(event.params.subject);
+  subject.image = event.params.image;
+  subject.uri = event.params.uri;
+  subject;
+  subject.save();
+
+  log.debug('subject {} updated image:{} uri:{}', [
+    subject.id,
+    subject.image,
+    subject.uri,
+  ]);
 }
 /*
 export function handleNewRewardDistribution(

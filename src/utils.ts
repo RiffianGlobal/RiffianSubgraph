@@ -1,4 +1,5 @@
-import { BigInt, ByteArray } from '@graphprotocol/graph-ts';
+import { BigInt, ByteArray, Bytes } from '@graphprotocol/graph-ts';
+import { User } from '../generated/schema';
 
 export const DOID_NODE =
   '6b72dd7f9f8150600ddd5344f1cce104abe98b28da6f4b5bbd65fb0d9541149c';
@@ -35,4 +36,16 @@ export function byteArrayFromHex(s: string): ByteArray {
 export function uint256ToByteArray(i: BigInt): ByteArray {
   let hex = i.toString().slice(2).padStart(64, '0');
   return byteArrayFromHex(hex);
+}
+
+export function createOrLoadUser(bytesAddress: Bytes): User {
+  let user = User.load(bytesAddress.toHex());
+  if (user == null) {
+    user = new User(bytesAddress.toHex());
+    user.address = bytesAddress;
+    user.holding = BigInt.zero();
+    user.rewardClaimed = BigInt.zero();
+    user.save();
+  }
+  return user as User;
 }

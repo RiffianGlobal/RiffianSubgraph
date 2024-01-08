@@ -12,12 +12,13 @@ import {
   NameRegistered,
   SetReverse,
 } from '../generated/DoidRegistry/DoidRegistry';
-import { Account, Domain } from '../generated/schema';
+import { User, Domain } from '../generated/schema';
 import {
   DOID_NODE,
   EMPTY_ADDRESS,
   byteArrayFromHex,
   concat,
+  createOrLoadUser,
   uint256ToByteArray,
 } from './utils';
 
@@ -37,15 +38,15 @@ function createOrGetDomain(id: BigInt, ts: BigInt): Domain {
   return domain;
 }
 
-function createOrGetAccount(owner: string): Account {
-  let account = Account.load(owner);
-  if (account == null) {
-    account = new Account(owner);
-    // account.doimains = [];
-    account.save();
-  }
-  return account;
-}
+// function createOrGetAccount(owner: string): Account {
+//   let account = Account.load(owner);
+//   if (account == null) {
+//     account = new Account(owner);
+//     // account.doimains = [];
+//     account.save();
+//   }
+//   return account;
+// }
 
 export function handleNameRegistered(event: NameRegistered): void {
   let domain = createOrGetDomain(event.params.id, event.block.timestamp);
@@ -55,11 +56,12 @@ export function handleNameRegistered(event: NameRegistered): void {
   domain.addr = event.params.owner.toHex();
   domain.save();
 
-  let account = createOrGetAccount(event.params.owner.toHex());
-  let domains = account.doimains;
+  let user = createOrLoadUser(event.params.owner);
+  // let account = createOrGetAccount(event.params.owner.toHex());
+  let domains = user.doimains;
   // domains.push(domain.id);
   // account.doimains = domains;
-  account.save();
+  user.save();
 }
 
 export function handleAddressChanged(event: AddressChanged): void {

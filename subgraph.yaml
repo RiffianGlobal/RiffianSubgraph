@@ -7,7 +7,7 @@ dataSources:
     network: riffian-testnet
     source:
       abi: RiffianBoard
-      address: "0x6c5BDD99537F344838796DeDFf6cD98b4908c57c"
+      address: '0x6c5BDD99537F344838796DeDFf6cD98b4908c57c'
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -23,6 +23,7 @@ dataSources:
         - VoteLog
         - Statistic
         - WeeklyStatistic
+        - EventSubjectChange
       abis:
         - name: RiffianBoard
           file: ./abis/RiffianBoard.json
@@ -33,13 +34,15 @@ dataSources:
           handler: handleEventVote
         - event: EventBind(address,string,string,string)
           handler: handleEventBind
+        - event: EventSubjectChange(bytes32,string,string)
+          handler: handleEventSubjectChange
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: DoidRegistry
     network: riffian-testnet
     source:
       abi: DoidRegistry
-      address: "0x20507b80c92d32DDfd733E81aF255b549421dfd8"
+      address: '0x20507b80c92d32DDfd733E81aF255b549421dfd8'
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
