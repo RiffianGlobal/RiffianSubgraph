@@ -45,6 +45,7 @@ function createOrLoadSubject(bytesSubject: Bytes): Subject {
     subject.image = '';
     subject.uri = '';
     subject.createdAt = 0;
+    subject.updatedAt = 0;
     subject.lastVoteAt = 0;
     subject.creator = '';
     subject.fans = [];
@@ -57,6 +58,10 @@ function createOrLoadSubject(bytesSubject: Bytes): Subject {
     subject.save();
   }
   return subject;
+}
+
+function getSubject(bytesSubject: Bytes): Subject | null {
+  return Subject.load(bytesSubject.toHex());
 }
 
 function createOrLoadSubjectWeeklyVote(
@@ -209,11 +214,9 @@ export function handleEventVote(event: EventVote): void {
   // update weekly statistic
   let weekStatistic = createOrLoadWeeklyStatistic(statistic.week);
   // update subject
-  let subject = createOrLoadSubject(event.params.subject);
-  if (subject.creator == '') {
-    log.error('should not happen,vote to event without creator {}', [
-      event.params.subject.toHex(),
-    ]);
+  let subject = getSubject(event.params.subject);
+  if (subject == null) {
+    log.error('subject not found {}', [event.params.subject.toHex()]);
     return;
   }
   subject.lastVoteAt = event.block.timestamp.toI32();
