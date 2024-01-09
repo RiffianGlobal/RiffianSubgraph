@@ -210,6 +210,12 @@ export function handleEventVote(event: EventVote): void {
   let weekStatistic = createOrLoadWeeklyStatistic(statistic.week);
   // update subject
   let subject = createOrLoadSubject(event.params.subject);
+  if (subject.creator == '') {
+    log.error('should not happen,vote to event without creator {}', [
+      event.params.subject.toHex(),
+    ]);
+    return;
+  }
   subject.lastVoteAt = event.block.timestamp.toI32();
   subject.supply = event.params.supply;
   // update subject weekly vote
@@ -352,7 +358,7 @@ export function handleEventSubjectChange(event: EventSubjectChange): void {
   let subject = createOrLoadSubject(event.params.subject);
   subject.image = event.params.image;
   subject.uri = event.params.uri;
-  subject;
+  subject.updatedAt = event.block.timestamp.toI32();
   subject.save();
 
   log.debug('subject {} updated image:{} uri:{}', [
