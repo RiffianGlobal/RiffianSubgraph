@@ -10,9 +10,11 @@ import {
   Statistic,
   WeeklyStatistic,
   UserSubjectWeeklyVote,
+  UserClaimLog,
 } from '../generated/schema';
 import {
   EventBind,
+  EventClaimReward,
   EventSubjectChange,
   EventVote,
   NewSubject,
@@ -355,6 +357,20 @@ export function handleEventVote(event: EventVote): void {
   subject.save();
   subjectWeeklyVote.save();
   weekStatistic.save();
+}
+
+export function handleEventClaimReward(event: EventClaimReward): void {
+  let user = createOrLoadUser(event.params.account);
+  user.rewardClaimed = user.rewardClaimed.plus(event.params.reward);
+  user.save();
+
+  let claimLog = new UserClaimLog(
+    event.params.account.toHex() + '-' + event.params.week.toString()
+  );
+  claimLog.amount = event.params.reward;
+  claimLog.week = event.params.week.toI32();
+  claimLog.user = event.params.account.toHex();
+  claimLog.save();
 }
 
 export function handleEventSubjectChange(event: EventSubjectChange): void {
