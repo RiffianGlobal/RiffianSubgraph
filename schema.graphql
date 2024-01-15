@@ -130,6 +130,8 @@ type UserWeeklyVote @entity {
   week: Int!
   "number of votes"
   votes: BigInt!
+  "amount use claimed"
+  claimed: BigInt!
   "number of retreats"
   retreats: BigInt!
   "volume of all votes"

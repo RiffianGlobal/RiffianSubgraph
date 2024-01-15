@@ -116,6 +116,7 @@ function createOrLoadUserWeeklyVote(user: Bytes, week: i32): UserWeeklyVote {
     weeklyVote.user = user.toHex();
     weeklyVote.week = week;
     weeklyVote.votes = BigInt.zero();
+    weeklyVote.claimed = BigInt.zero();
     weeklyVote.retreats = BigInt.zero();
     weeklyVote.volumeVote = BigInt.zero();
     weeklyVote.volumeRetreat = BigInt.zero();
@@ -360,17 +361,16 @@ export function handleEventVote(event: EventVote): void {
 }
 
 export function handleEventClaimReward(event: EventClaimReward): void {
+  let weeklyVote = createOrLoadUserWeeklyVote(
+    event.params.account,
+    event.params.week
+  );
+  weeklyVote.claimed = weeklyVote.claimed.plus(event.params.reward);
+  weeklyVote.save();
+
   let user = createOrLoadUser(event.params.account);
   user.rewardClaimed = user.rewardClaimed.plus(event.params.reward);
   user.save();
-
-  let claimLog = new UserClaimLog(
-    event.params.account.toHex() + '-' + event.params.week.toString()
-  );
-  claimLog.amount = event.params.reward;
-  claimLog.week = event.params.week.toI32();
-  claimLog.user = event.params.account.toHex();
-  claimLog.save();
 }
 
 export function handleEventSubjectChange(event: EventSubjectChange): void {
@@ -386,22 +386,3 @@ export function handleEventSubjectChange(event: EventSubjectChange): void {
     subject.uri,
   ]);
 }
-/*
-export function handleNewRewardDistribution(
-  event: NewRewardDistribution
-): void {
-  let dis = TokenDistribution.load(event.block.timestamp.toHex());
-  if (dis == null) {
-    dis = new TokenDistribution(event.block.timestamp.toHex());
-    dis.createdAt = event.block.timestamp.toI32();
-  }
-  dis.SubjectPercents = event.params._Subject.toI32();
-  dis.artistPercents = event.params._artist.toI32();
-  dis.teamPercents = event.params._team.toI32();
-  dis.weeklyPercents = event.params._daily.toI32();
-  dis.updatedAt = event.block.timestamp.toI32();
-  dis.save();
-}
-
-export function handleClaim(event: ClaimSubjectRewards): void {}
-*/
