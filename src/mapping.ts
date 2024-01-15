@@ -363,7 +363,7 @@ export function handleEventVote(event: EventVote): void {
 export function handleEventClaimReward(event: EventClaimReward): void {
   let weeklyVote = createOrLoadUserWeeklyVote(
     event.params.account,
-    event.params.week
+    event.params.week.toI32()
   );
   weeklyVote.claimed = weeklyVote.claimed.plus(event.params.reward);
   weeklyVote.save();
