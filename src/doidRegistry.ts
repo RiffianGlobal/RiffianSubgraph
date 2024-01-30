@@ -1,11 +1,4 @@
-import {
-  BigInt,
-  Bytes,
-  log,
-  crypto,
-  ByteArray,
-  ens,
-} from '@graphprotocol/graph-ts';
+import { BigInt, Bytes, log, crypto } from '@graphprotocol/graph-ts';
 import {
   AddressChanged,
   DoidRegistry,
@@ -14,22 +7,18 @@ import {
 } from '../generated/DoidRegistry/DoidRegistry';
 import { User, Domain } from '../generated/schema';
 import {
-  DOID_NODE,
+  ROOT_NODE,
   EMPTY_ADDRESS,
-  byteArrayFromHex,
-  concat,
   createOrLoadUser,
   uint256ToByteArray,
 } from './utils';
 
-var rootNode: ByteArray = byteArrayFromHex(DOID_NODE);
-
 function createOrGetDomain(id: BigInt, ts: BigInt): Domain {
   // id = keccak(name), domain_id = keccak(keccak('doid')+id)
   let label = uint256ToByteArray(id);
-  let domain = Domain.load(crypto.keccak256(concat(rootNode, label)).toHex());
+  let domain = Domain.load(crypto.keccak256(ROOT_NODE.concat(label)).toHex());
   if (domain == null) {
-    domain = new Domain(crypto.keccak256(concat(rootNode, label)).toHex());
+    domain = new Domain(crypto.keccak256(ROOT_NODE.concat(label)).toHex());
     domain.owner = EMPTY_ADDRESS;
     domain.addr = EMPTY_ADDRESS;
     domain.createdAt = ts;
@@ -57,10 +46,6 @@ export function handleNameRegistered(event: NameRegistered): void {
   domain.save();
 
   let user = createOrLoadUser(event.params.owner);
-  // let account = createOrGetAccount(event.params.owner.toHex());
-  let domains = user.doimains;
-  // domains.push(domain.id);
-  // account.doimains = domains;
   user.save();
 }
 

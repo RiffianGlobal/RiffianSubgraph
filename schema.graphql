@@ -180,10 +180,10 @@ type VoteLog @entity(immutable: true) {
 type VoteHourData @entity {
   id: ID!
   # timestamp of hour start
-  date: BigInt!
+  date: Int!
   # subject of the vote
   subject: Subject!
-  # volume of the hour
+  # votes of the hour
   volume: BigInt!
   # ohlc price
   open: BigInt!

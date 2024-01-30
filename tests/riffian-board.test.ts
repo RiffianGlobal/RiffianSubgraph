@@ -9,7 +9,13 @@ import {
   beforeEach,
   createMockedFunction,
 } from 'matchstick-as/assembly/index';
-import { Address, BigInt, dataSource, ethereum } from '@graphprotocol/graph-ts';
+import {
+  Address,
+  BigInt,
+  dataSource,
+  ethereum,
+  log,
+} from '@graphprotocol/graph-ts';
 import {
   // handleEventBind,
   handleEventVote,
@@ -20,7 +26,7 @@ import {
   createEventVoteEvent,
   createNewSubjectEvent,
 } from './riffian-board-utils';
-import { Subject } from '../generated/schema';
+import { Subject, VoteHourData } from '../generated/schema';
 import { RiffianBoard } from '../generated/RiffianBoard/RiffianBoard';
 
 describe('Create an Subject', () => {
@@ -268,11 +274,16 @@ describe('Event vote', () => {
       supply
     );
     handleEventVote(eventVote);
-    assert.entityCount('voteHourData', 1);
+    assert.entityCount('VoteHourData', 1);
 
-    let voteHourId = Subject.toHex().concat('-').concat('1');
-    assert.fieldEquals('voteHourData', voteHourId, 'volume', amount.toHex());
-    assert.fieldEquals('voteHourData', voteHourId, 'open', value.toString());
-    assert.fieldEquals('voteHourData', voteHourId, 'low', value.toString());
+    let voteHourId = Subject.toHex().concat('-').concat('0');
+    assert.assertNotNull(VoteHourData.load(voteHourId), 'id incorrect');
+
+    // log.info('{}', [VoteHourData.load(voteHourId)!.open.toString()]);
+    assert.fieldEquals('VoteHourData', voteHourId, 'volume', amount.toString());
+    assert.fieldEquals('VoteHourData', voteHourId, 'open', value.toString());
+    assert.fieldEquals('VoteHourData', voteHourId, 'low', value.toString());
+    assert.fieldEquals('VoteHourData', voteHourId, 'date', '0');
+    assert.fieldEquals('VoteHourData', voteHourId, 'subject', Subject.toHex());
   });
 });
