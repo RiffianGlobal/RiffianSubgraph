@@ -177,6 +177,21 @@ type VoteLog @entity(immutable: true) {
   supply: BigInt!
 }
 
+type VoteHourData @entity {
+  id: ID!
+  # timestamp of hour start
+  date: BigInt!
+  # subject of the vote
+  subject: Subject!
+  # volume of the hour
+  volume: BigInt!
+  # ohlc price
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+}
+
 type Statistic @entity {
   "riffian"
   id: ID!

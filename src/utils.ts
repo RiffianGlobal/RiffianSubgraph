@@ -1,5 +1,6 @@
 import { BigInt, ByteArray, Bytes } from '@graphprotocol/graph-ts';
-import { User } from '../generated/schema';
+import { User, VoteHourData } from '../generated/schema';
+import { EventVote } from '../generated/RiffianBoard/RiffianBoard';
 
 export const DOID_NODE =
   '6b72dd7f9f8150600ddd5344f1cce104abe98b28da6f4b5bbd65fb0d9541149c';
@@ -48,4 +49,37 @@ export function createOrLoadUser(bytesAddress: Bytes): User {
     user.save();
   }
   return user as User;
+}
+
+export function updateVoteHourData(event: EventVote): VoteHourData {
+  let ts = event.block.timestamp.toI32();
+  let hourId = ts / 3600;
+  let price = event.params.value;
+  let voteHourId = event.params.subject
+    .toHex()
+    .concat('-')
+    .concat(hourId.toString());
+
+  let voteHourData = VoteHourData.load(voteHourId);
+  if (voteHourData == null) {
+    voteHourData = new VoteHourData(voteHourId);
+    voteHourData.subject = event.params.subject.toHex();
+    voteHourData.date = event.block.timestamp;
+    voteHourData.volume = BigInt.zero();
+    voteHourData.open = price;
+    voteHourData.high = price;
+    voteHourData.low = price;
+    voteHourData.close = price;
+  }
+  if (price.gt(voteHourData.high)) {
+    voteHourData.high = price;
+  }
+  if (price.lt(voteHourData.low)) {
+    voteHourData.low = price;
+  }
+  // TODO vol += amount * price ???
+  voteHourData.volume.plus(event.params.amount);
+  voteHourData.close = price;
+  voteHourData.save();
+  return voteHourData;
 }

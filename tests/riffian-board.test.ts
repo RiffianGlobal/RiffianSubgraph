@@ -250,4 +250,29 @@ describe('Event vote', () => {
     assert.entityCount('UserSubjectVote', 1);
     // assert.entityCount('')
   });
+
+  test('check voteHourData', () => {
+    let user = Address.fromString('0x0000000000000000000000000000000000000003');
+    let Subject = Address.fromString(
+      '0x0000000000000000000000000000000000000002'
+    );
+    let amount = BigInt.fromI32(123);
+    let value = BigInt.fromI32(1);
+    let supply = BigInt.fromI32(1);
+    let eventVote = createEventVoteEvent(
+      user,
+      Subject,
+      true,
+      amount,
+      value,
+      supply
+    );
+    handleEventVote(eventVote);
+    assert.entityCount('voteHourData', 1);
+
+    let voteHourId = Subject.toHex().concat('-').concat('1');
+    assert.fieldEquals('voteHourData', voteHourId, 'volume', amount.toHex());
+    assert.fieldEquals('voteHourData', voteHourId, 'open', value.toString());
+    assert.fieldEquals('voteHourData', voteHourId, 'low', value.toString());
+  });
 });

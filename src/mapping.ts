@@ -20,7 +20,7 @@ import {
   NewSubject,
   RiffianBoard,
 } from '../generated/RiffianBoard/RiffianBoard';
-import { createOrLoadUser } from './utils';
+import { createOrLoadUser, updateVoteHourData } from './utils';
 
 function getWeek(): i32 {
   let contract = RiffianBoard.bind(dataSource.address());
@@ -213,6 +213,9 @@ export function handleEventVote(event: EventVote): void {
     statistic.totalVotes = statistic.totalVotes.plus(event.params.amount);
   }
   statistic.save();
+
+  // update priceData
+  let hourData = updateVoteHourData(event);
 
   // update weekly statistic
   let weekStatistic = createOrLoadWeeklyStatistic(statistic.week);
