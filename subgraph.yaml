@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: RiffianBoard
-    network: riffian-testnet
+    network: doid
     source:
       abi: RiffianBoard
-      address: "0x6c5BDD99537F344838796DeDFf6cD98b4908c57c"
-      startBlock: 2
+      address: "0xc6712F4B2EeDe48D5BA8f09Db56C820F4A236828"
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -43,11 +43,11 @@ dataSources:
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: DoidRegistry
-    network: riffian-testnet
+    network: doid
     source:
       abi: DoidRegistry
-      address: "0x20507b80c92d32DDfd733E81aF255b549421dfd8"
-      startBlock: 2
+      address: "0x61412955195691E47c99f1Ca202A0e558db24393"
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
